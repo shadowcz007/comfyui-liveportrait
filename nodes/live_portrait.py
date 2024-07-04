@@ -208,7 +208,7 @@ class LivePortraitNode:
 
 
         #获取临时目录：temp
-        output_dir = folder_paths.get_output_directory()
+        output_dir = folder_paths.get_temp_directory()
         (
             full_output_folder,
             filename,

@@ -10,8 +10,8 @@ import yaml
 import torch
 import time
 import numpy as np
-from src.utils.helper import load_model, concat_feat
-from src.config.inference_config import InferenceConfig
+from LivePortrait.src.utils.helper import load_model, concat_feat
+from LivePortrait.src.config.inference_config import InferenceConfig
 
 
 def initialize_inputs(batch_size=1):

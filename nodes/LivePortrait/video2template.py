@@ -5,10 +5,10 @@
 """
 
 import tyro
-from src.config.crop_config import CropConfig
-from src.config.inference_config import InferenceConfig
-from src.config.argument_config import ArgumentConfig
-from src.template_maker import TemplateMaker
+from LivePortrait.src.config.crop_config import CropConfig
+from LivePortrait.src.config.inference_config import InferenceConfig
+from LivePortrait.src.config.argument_config import ArgumentConfig
+from LivePortrait.src.template_maker import TemplateMaker
 
 
 def partial_fields(target_class, kwargs):

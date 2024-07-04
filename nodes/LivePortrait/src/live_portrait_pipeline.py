@@ -10,7 +10,7 @@ Pipeline of LivePortrait
 
 import cv2
 import numpy as np
-import pickle
+import pickle,os
 import os.path as osp
 from rich.progress import track
 
@@ -177,16 +177,19 @@ class LivePortraitPipeline(object):
                 out = np.hstack([I_p_i_to_ori, I_p_i_to_ori_blend])
                 I_p_paste_lst.append(I_p_i_to_ori_blend)
 
-        mkdir(args.output_dir)
-        wfp_concat = None
+
+        directory, filename = os.path.split(args.output_path)
+        if not os.path.exists(directory):
+            mkdir(directory)
+        wfp_concat = args.output_path_concat
         if is_video(args.driving_info):
             frames_concatenated = concat_frames(I_p_lst, driving_rgb_lst, img_crop_256x256)
             # save (driving frames, source image, drived frames) result
-            wfp_concat = osp.join(args.output_dir, f'{basename(args.source_image)}--{basename(args.driving_info)}_concat.mp4')
+            # wfp_concat = osp.join(directory, f'{basename(args.source_image)}--{basename(args.driving_info)}_concat.mp4')
             images2video(frames_concatenated, wfp=wfp_concat)
 
         # save drived result
-        wfp = osp.join(args.output_dir, f'{basename(args.source_image)}--{basename(args.driving_info)}.mp4')
+        wfp = args.output_path
         if inference_cfg.flag_pasteback:
             images2video(I_p_paste_lst, wfp=wfp)
         else:

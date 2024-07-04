@@ -10,13 +10,13 @@ import cv2
 import torch
 import yaml
 
-from src.utils.timer import Timer
-from src.utils.helper import load_model, concat_feat
-from src.utils.retargeting_utils import compute_eye_delta, compute_lip_delta
-from src.utils.camera import headpose_pred_to_degree, get_rotation_matrix
+from LivePortrait.src.utils.timer import Timer
+from LivePortrait.src.utils.helper import load_model, concat_feat
+from LivePortrait.src.utils.retargeting_utils import compute_eye_delta, compute_lip_delta
+from LivePortrait.src.utils.camera import headpose_pred_to_degree, get_rotation_matrix
 from .utils.retargeting_utils import calc_eye_close_ratio, calc_lip_close_ratio
-from src.config.inference_config import InferenceConfig
-from src.utils.rprint import rlog as log
+from LivePortrait.src.config.inference_config import InferenceConfig
+from LivePortrait.src.utils.rprint import rlog as log
 
 
 class LivePortraitWrapper(object):

@@ -37,7 +37,8 @@ class ArgumentConfig:
     def __init__(self,
                     source_image,
                     driving_info,
-                    output_dir='animations/',
+                    output_path='animations/v.mp4',
+                    output_path_concat="",
                     device_id=0,
                     flag_lip_zero=True,
                     flag_eye_retargeting=False,
@@ -56,7 +57,8 @@ class ArgumentConfig:
                     server_name='0.0.0.0'):
         self.source_image = source_image
         self.driving_info = driving_info
-        self.output_dir = output_dir
+        self.output_path = output_path
+        self.output_path_concat=output_path_concat
         self.device_id = device_id
         self.flag_lip_zero = flag_lip_zero
         self.flag_eye_retargeting = flag_eye_retargeting
@@ -174,8 +176,8 @@ class LivePortraitNode:
                 #         }
                 }
     
-    RETURN_TYPES = ("SCENE_VIDEO",)
-    RETURN_NAMES = ("video",)
+    RETURN_TYPES = ("SCENE_VIDEO","SCENE_VIDEO",)
+    RETURN_NAMES = ("video","video_concat",)
 
     FUNCTION = "run"
 
@@ -205,10 +207,27 @@ class LivePortraitNode:
         im.save(image_path,compress_level=6)
 
 
+        #获取临时目录：temp
+        output_dir = folder_paths.get_output_directory()
+        (
+            full_output_folder,
+            filename,
+            counter,
+            subfolder,
+            _,
+        ) = folder_paths.get_save_image_path('liveportrait', output_dir)
+        
+        v_file = f"{filename}_{counter:05}.mp4"
+        v_file_concat = f"{filename}_concat_{counter:05}.mp4"
+
+        v_path=os.path.join(full_output_folder, v_file)
+        output_path_concat=os.path.join(full_output_folder, v_file_concat)
+
         args =  ArgumentConfig(
             source_image=image_path,
-            driving_info=r'C:\Users\38957\Documents\ai-lab\ComfyUI_windows_portable\custom_nodes\comfyui-liveportrait\example\d0.mp4',
-            output_dir=""
+            driving_info=driving_video,
+            output_path=v_path,
+            output_path_concat=output_path_concat
         )
         
         
@@ -222,5 +241,5 @@ class LivePortraitNode:
         # run
         live_portrait_pipeline.execute(args)
 
-        return (result,)
+        return (v_path,output_path_concat,)
 

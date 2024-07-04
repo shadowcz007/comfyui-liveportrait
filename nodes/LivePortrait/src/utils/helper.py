@@ -11,11 +11,11 @@ import torch
 from rich.console import Console
 from collections import OrderedDict
 
-from src.modules.spade_generator import SPADEDecoder
-from src.modules.warping_network import WarpingNetwork
-from src.modules.motion_extractor import MotionExtractor
-from src.modules.appearance_feature_extractor import AppearanceFeatureExtractor
-from src.modules.stitching_retargeting_network import StitchingRetargetingNetwork
+from LivePortrait.src.modules.spade_generator import SPADEDecoder
+from LivePortrait.src.modules.warping_network import WarpingNetwork
+from LivePortrait.src.modules.motion_extractor import MotionExtractor
+from LivePortrait.src.modules.appearance_feature_extractor import AppearanceFeatureExtractor
+from LivePortrait.src.modules.stitching_retargeting_network import StitchingRetargetingNetwork
 from .rprint import rlog as log
 
 

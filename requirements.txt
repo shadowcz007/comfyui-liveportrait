@@ -11,4 +11,4 @@ scikit-image>=0.24.0
 albumentations>=1.4.10
 matplotlib>=3.9.0
 imageio-ffmpeg>=0.5.1
-
+tyro==0.8.5

@@ -34,9 +34,9 @@ def make_abs_path(fn):
 
 class LivePortraitPipeline(object):
 
-    def __init__(self, inference_cfg: InferenceConfig, crop_cfg: CropConfig):
+    def __init__(self, inference_cfg: InferenceConfig, crop_cfg: CropConfig,landmark_runner_ckpt,insightface_pretrained_weights):
         self.live_portrait_wrapper: LivePortraitWrapper = LivePortraitWrapper(cfg=inference_cfg)
-        self.cropper = Cropper(crop_cfg=crop_cfg)
+        self.cropper = Cropper(crop_cfg=crop_cfg,landmark_runner_ckpt=landmark_runner_ckpt,insightface_pretrained_weights=insightface_pretrained_weights)
 
     def execute(self, args: ArgumentConfig):
         inference_cfg = self.live_portrait_wrapper.cfg # for convenience

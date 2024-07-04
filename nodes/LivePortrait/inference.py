@@ -16,8 +16,8 @@ sys.path.append(current_directory)
 
 
 # from src.config.argument_config import ArgumentConfig
-from src.config.inference_config import InferenceConfig
-from src.config.crop_config import CropConfig
+# from src.config.inference_config import InferenceConfig
+# from src.config.crop_config import CropConfig
 from src.live_portrait_pipeline import LivePortraitPipeline
 
 
@@ -81,6 +81,7 @@ def main():
                     checkpoint_G,
                     checkpoint_W,
                     checkpoint_S,
+                   
                     flag_use_half_precision=True,
                     flag_lip_zero=True,
                     lip_zero_threshold=0.03,
@@ -129,20 +130,21 @@ def main():
             self.device_id = device_id
             self.flag_do_crop = flag_do_crop
             self.flag_do_rot = flag_do_rot
-            
+           
     
     args =  ArgumentConfig(
-        source_image=r'C:\Users\38957\Documents\ai-lab\ComfyUI_windows_portable\custom_nodes\comfyui-liveportrait\nodes\LivePortrait\assets\examples\source\s0.jpg',
-        driving_info=r'C:\Users\38957\Documents\ai-lab\ComfyUI_windows_portable\custom_nodes\comfyui-liveportrait\nodes\LivePortrait\assets\examples\driving\d0.mp4'
+        source_image=r'C:\Users\38957\Documents\ai-lab\ComfyUI_windows_portable\custom_nodes\comfyui-liveportrait\example\s0.jpg',
+        driving_info=r'C:\Users\38957\Documents\ai-lab\ComfyUI_windows_portable\custom_nodes\comfyui-liveportrait\example\d0.mp4'
     )
 
     inference_cfg = InferenceConfig(
         models_config=r'C:\Users\38957\Documents\ai-lab\ComfyUI_windows_portable\custom_nodes\comfyui-liveportrait\nodes\LivePortrait\src\config\models.yaml',
-        checkpoint_F=r'C:\Users\38957\Documents\ai-lab\ComfyUI_windows_portable\custom_nodes\comfyui-liveportrait\nodes\LivePortrait\src\config\../../pretrained_weights/liveportrait/base_models/appearance_feature_extractor.pth',
-        checkpoint_M=r'C:\Users\38957\Documents\ai-lab\ComfyUI_windows_portable\custom_nodes\comfyui-liveportrait\nodes\LivePortrait\src\config\../../pretrained_weights/liveportrait/base_models/motion_extractor.pth',
-        checkpoint_G=r'C:\Users\38957\Documents\ai-lab\ComfyUI_windows_portable\custom_nodes\comfyui-liveportrait\nodes\LivePortrait\src\config\../../pretrained_weights/liveportrait/base_models/spade_generator.pth',
-        checkpoint_W=r'C:\Users\38957\Documents\ai-lab\ComfyUI_windows_portable\custom_nodes\comfyui-liveportrait\nodes\LivePortrait\src\config\../../pretrained_weights/liveportrait/base_models/warping_module.pth',
-        checkpoint_S=r'C:\Users\38957\Documents\ai-lab\ComfyUI_windows_portable\custom_nodes\comfyui-liveportrait\nodes\LivePortrait\src\config\../../pretrained_weights/liveportrait/retargeting_models/stitching_retargeting_module.pth'
+        checkpoint_F=r'C:\Users\38957\Documents\ai-lab\ComfyUI_windows_portable\ComfyUI\models\liveportrait\base_models\appearance_feature_extractor.pth',
+        checkpoint_M=r'C:\Users\38957\Documents\ai-lab\ComfyUI_windows_portable\ComfyUI\models\liveportrait\base_models\motion_extractor.pth',
+        checkpoint_G=r'C:\Users\38957\Documents\ai-lab\ComfyUI_windows_portable\ComfyUI\models\liveportrait\base_models\spade_generator.pth',
+        checkpoint_W=r'C:\Users\38957\Documents\ai-lab\ComfyUI_windows_portable\ComfyUI\models\liveportrait\base_models\warping_module.pth',
+        checkpoint_S=r'C:\Users\38957\Documents\ai-lab\ComfyUI_windows_portable\ComfyUI\models\liveportrait\retargeting_models/stitching_retargeting_module.pth'
+       
     )
 
     class CropConfig:
@@ -163,9 +165,13 @@ def main():
     print('-----------')
     print('crop_cfg',crop_cfg)
 
+    landmark_runner_ckpt=r'C:\Users\38957\Documents\ai-lab\ComfyUI_windows_portable\ComfyUI\models\liveportrait\landmark.onnx',
+    insightface_pretrained_weights=r'C:\Users\38957\Documents\ai-lab\ComfyUI_windows_portable\ComfyUI\models\insightface',
     live_portrait_pipeline = LivePortraitPipeline(
         inference_cfg=inference_cfg,
-        crop_cfg=crop_cfg
+        crop_cfg=crop_cfg,
+        landmark_runner_ckpt=landmark_runner_ckpt,
+        insightface_pretrained_weights=insightface_pretrained_weights
     )
 
     # # run

@@ -10,8 +10,15 @@
 
 ## models
 
-链接：https://pan.baidu.com/s/1WpZ1FrqYLLytvLBIpTWShw?pwd=MAI0 
-提取码：MAI0 
+[google drive](https://drive.google.com/drive/folders/1UtKgzKjFAOmZkhNK-OYT0caJ_w2XAnib)
+
+[百度](https://pan.baidu.com/s/1WpZ1FrqYLLytvLBIpTWShw?pwd=MAI0)
+
+放置到 
+
+``` Comfyui/models/liveportrait ``` 
+
+``` Comfyui/models/insightface ```
 
 
 

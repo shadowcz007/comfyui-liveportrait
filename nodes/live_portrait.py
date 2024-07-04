@@ -184,7 +184,7 @@ class LivePortraitNode:
     CATEGORY = "♾️Mixlab/Video"
 
     INPUT_IS_LIST = False
-    OUTPUT_IS_LIST = (False,) #list 列表 [1,2,3]
+    OUTPUT_IS_LIST = (False,False,) #list 列表 [1,2,3]
   
     def run(self,source_image,driving_video):
 

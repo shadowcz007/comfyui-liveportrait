@@ -1,5 +1,3 @@
-(进行ing，还没完工)
-
 [LivePortrait](https://github.com/KwaiVGI/LivePortrait)的Comfyui版本。
 
 

@@ -33,9 +33,10 @@ class Trajectory:
 class Cropper(object):
     def __init__(self, **kwargs) -> None:
         device_id = kwargs.get('device_id', 0)
-        landmark_runner_ckpt=kwargs.get('landmark_runner_ckpt', make_abs_path('../../pretrained_weights/liveportrait/landmark.onnx'))
+        landmark_runner_ckpt=kwargs.get('landmark_runner_ckpt', make_abs_path('../../pretrained_weights/liveportrait/landmark.onnx'))[0]
       
-        insightface_pretrained_weights=kwargs.get('insightface_pretrained_weights', make_abs_path('../../pretrained_weights/insightface'))
+        insightface_pretrained_weights=kwargs.get('insightface_pretrained_weights', make_abs_path('../../pretrained_weights/insightface'))[0]
+        print('#insightface_pretrained_weights',insightface_pretrained_weights)
         self.landmark_runner = LandmarkRunner(
             # ckpt_path=make_abs_path('../../pretrained_weights/liveportrait/landmark.onnx'),
             ckpt_path=landmark_runner_ckpt,

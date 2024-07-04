@@ -15,9 +15,9 @@ current_directory = os.path.dirname(current_file_path)
 sys.path.append(current_directory)
 
 
-# from src.config.argument_config import ArgumentConfig
-# from src.config.inference_config import InferenceConfig
-# from src.config.crop_config import CropConfig
+from src.config.argument_config import ArgumentConfig
+from src.config.inference_config import InferenceConfig
+from src.config.crop_config import CropConfig
 from src.live_portrait_pipeline import LivePortraitPipeline
 
 
@@ -81,7 +81,7 @@ def main():
                     checkpoint_G,
                     checkpoint_W,
                     checkpoint_S,
-                   
+                    mask_crop = None,
                     flag_use_half_precision=True,
                     flag_lip_zero=True,
                     lip_zero_threshold=0.03,
@@ -130,6 +130,7 @@ def main():
             self.device_id = device_id
             self.flag_do_crop = flag_do_crop
             self.flag_do_rot = flag_do_rot
+            self.mask_crop=mask_crop
            
     
     args =  ArgumentConfig(

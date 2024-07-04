@@ -27,6 +27,7 @@ from .utils.helper import mkdir, basename, dct2cuda, is_video, is_template, resi
 from .utils.rprint import rlog as log
 from .live_portrait_wrapper import LivePortraitWrapper
 
+import comfy.utils
 
 def make_abs_path(fn):
     return osp.join(osp.dirname(osp.realpath(__file__)), fn)
@@ -38,7 +39,7 @@ class LivePortraitPipeline(object):
         self.live_portrait_wrapper: LivePortraitWrapper = LivePortraitWrapper(cfg=inference_cfg)
         self.cropper = Cropper(crop_cfg=crop_cfg,landmark_runner_ckpt=landmark_runner_ckpt,insightface_pretrained_weights=insightface_pretrained_weights)
 
-    def execute(self, args: ArgumentConfig,callback):
+    def execute(self, args: ArgumentConfig):
         inference_cfg = self.live_portrait_wrapper.cfg # for convenience
         ######## process reference portrait ########
         img_rgb = load_image_rgb(args.source_image)
@@ -99,9 +100,11 @@ class LivePortraitPipeline(object):
 
         I_p_lst = []
         R_d_0, x_d_0_info = None, None
+
+        pbar = comfy.utils.ProgressBar(n_frames)
+
         for i in track(range(n_frames), description='Animating...', total=n_frames):
-            if callback:
-                callback(i,n_frames)
+    
             if is_video(args.driving_info):
                 # extract kp info by M
                 I_d_i = I_d_lst[i]
@@ -178,6 +181,8 @@ class LivePortraitPipeline(object):
                 I_p_i_to_ori_blend = np.clip(mask_ori * I_p_i_to_ori + (1 - mask_ori) * img_rgb, 0, 255).astype(np.uint8)
                 out = np.hstack([I_p_i_to_ori, I_p_i_to_ori_blend])
                 I_p_paste_lst.append(I_p_i_to_ori_blend)
+
+            pbar.update(1)
 
 
         directory, filename = os.path.split(args.output_path)

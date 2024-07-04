@@ -5,7 +5,7 @@ import numpy as np
 import torch
 from PIL import Image
 import folder_paths
-
+import comfy.utils
 
 
 
@@ -148,7 +148,7 @@ liveportrait_model=get_model_dir('liveportrait')
 insightface_pretrained_weights=get_model_dir('insightface')
 
 landmark_runner_ckpt=os.path.join(liveportrait_model,'landmark.onnx')
-print('#landmark_runner_ckpt',landmark_runner_ckpt)
+# print('#landmark_runner_ckpt',landmark_runner_ckpt)
 inference_cfg = InferenceConfig(
         models_config=os.path.join(current_directory,r'LivePortrait\src\config\models.yaml'),
         checkpoint_F=os.path.join(liveportrait_model,r'base_models\appearance_feature_extractor.pth'),
@@ -230,7 +230,7 @@ class LivePortraitNode:
             output_path_concat=output_path_concat
         )
         
-        print('##---------------------------------#landmark_runner_ckpt',landmark_runner_ckpt)
+        # print('##---------------------------------#landmark_runner_ckpt',landmark_runner_ckpt)
         live_portrait_pipeline = LivePortraitPipeline(
             inference_cfg=inference_cfg,
             crop_cfg=crop_cfg,
@@ -238,11 +238,9 @@ class LivePortraitNode:
             insightface_pretrained_weights=insightface_pretrained_weights
         )
 
-        def progress_fn(i,n_frames):
-            print(i,n_frames)
 
         # run
-        live_portrait_pipeline.execute(args,callback=progress_fn)
+        live_portrait_pipeline.execute(args)
 
         return (v_path,output_path_concat,)
 

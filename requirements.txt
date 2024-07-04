@@ -1,0 +1,16 @@
+numpy
+pyyaml
+opencv-python
+scipy
+imageio
+lmdb
+tqdm
+timm
+rich
+ffmpeg
+onnxruntime-gpu
+onnx
+scikit-image
+albumentations
+matplotlib
+imageio-ffmpeg

@@ -242,5 +242,9 @@ class LivePortraitNode:
         # run
         live_portrait_pipeline.execute(args)
 
+        live_portrait_pipeline.live_portrait_wrapper=None
+
+        live_portrait_pipeline=None
+
         return (v_path,output_path_concat,)
 

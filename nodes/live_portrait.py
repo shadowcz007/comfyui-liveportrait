@@ -238,8 +238,11 @@ class LivePortraitNode:
             insightface_pretrained_weights=insightface_pretrained_weights
         )
 
+        def progress_fn(i,n_frames):
+            print(i,n_frames)
+
         # run
-        live_portrait_pipeline.execute(args)
+        live_portrait_pipeline.execute(args,callback=progress_fn)
 
         return (v_path,output_path_concat,)
 

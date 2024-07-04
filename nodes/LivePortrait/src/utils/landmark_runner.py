@@ -31,7 +31,7 @@ class LandmarkRunner(object):
         device_id = kwargs.get('device_id', 0)
         self.dsize = kwargs.get('dsize', 224)
         self.timer = Timer()
-        print('---------------------------------#onnx_provider',ckpt_path)
+        # print('---------------------------------#onnx_provider',ckpt_path)
         if onnx_provider.lower() == 'cuda':
             self.session = onnxruntime.InferenceSession(
                 ckpt_path, providers=[

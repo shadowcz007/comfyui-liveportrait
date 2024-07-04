@@ -1,5 +1,13 @@
 (进行ing，还没完工)
 
+[LivePortrait](https://github.com/KwaiVGI/LivePortrait)的Comfyui版本。
+
+
+### workflow
+
+[![alt text](example/1720078701040.png)](example/live_workflow.json)
+
+[Workflow JSON](example/live_workflow.json)
 
 ## models
 

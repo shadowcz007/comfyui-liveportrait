@@ -38,7 +38,7 @@ class LivePortraitPipeline(object):
         self.live_portrait_wrapper: LivePortraitWrapper = LivePortraitWrapper(cfg=inference_cfg)
         self.cropper = Cropper(crop_cfg=crop_cfg,landmark_runner_ckpt=landmark_runner_ckpt,insightface_pretrained_weights=insightface_pretrained_weights)
 
-    def execute(self, args: ArgumentConfig):
+    def execute(self, args: ArgumentConfig,callback):
         inference_cfg = self.live_portrait_wrapper.cfg # for convenience
         ######## process reference portrait ########
         img_rgb = load_image_rgb(args.source_image)
@@ -100,6 +100,8 @@ class LivePortraitPipeline(object):
         I_p_lst = []
         R_d_0, x_d_0_info = None, None
         for i in track(range(n_frames), description='Animating...', total=n_frames):
+            if callback:
+                callback(i,n_frames)
             if is_video(args.driving_info):
                 # extract kp info by M
                 I_d_i = I_d_lst[i]

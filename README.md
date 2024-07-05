@@ -8,6 +8,8 @@
 
 [Workflow JSON](example/live_workflow.json)
 
+[AppInfo workflow JSON](example/appinfo-workflow.json)
+
 ## models
 
 [google drive](https://drive.google.com/drive/folders/1UtKgzKjFAOmZkhNK-OYT0caJ_w2XAnib)
@@ -20,6 +22,11 @@
 
 ``` Comfyui/models/insightface ```
 
+## python环境依赖
+
+[打包好的环境](https://pan.baidu.com/s/1oQCvtWR2seFloZDGsNGNTQ?pwd=MAI0)
+
+如果安装了 [comfyui-mixlab-nodes](https://github.com/shadowcz007/comfyui-mixlab-nodes) ，是不需要再安装新的依赖的。
 
 
 #### 相关插件推荐

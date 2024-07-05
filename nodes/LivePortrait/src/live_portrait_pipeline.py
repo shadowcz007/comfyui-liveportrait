@@ -14,7 +14,7 @@ import pickle,os
 import os.path as osp
 from rich.progress import track
 
-from .config.argument_config import ArgumentConfig
+# from .config.argument_config import ArgumentConfig
 from .config.inference_config import InferenceConfig
 from .config.crop_config import CropConfig
 from .utils.cropper import Cropper
@@ -39,12 +39,13 @@ class LivePortraitPipeline(object):
         self.live_portrait_wrapper: LivePortraitWrapper = LivePortraitWrapper(cfg=inference_cfg)
         self.cropper = Cropper(crop_cfg=crop_cfg,landmark_runner_ckpt=landmark_runner_ckpt,insightface_pretrained_weights=insightface_pretrained_weights)
 
-    def execute(self, args: ArgumentConfig):
+    def execute(self, args):
         inference_cfg = self.live_portrait_wrapper.cfg # for convenience
         ######## process reference portrait ########
-        img_rgb = load_image_rgb(args.source_image)
+        # img_rgb = load_image_rgb(args.source_image)
+        img_rgb=args.source_image
         img_rgb = resize_to_limit(img_rgb, inference_cfg.ref_max_shape, inference_cfg.ref_shape_n)
-        log(f"Load source image from {args.source_image}")
+        # log(f"Load source image from {args.source_image}")
         crop_info = self.cropper.crop_single_image(img_rgb)
         source_lmk = crop_info['lmk_crop']
         img_crop, img_crop_256x256 = crop_info['img_crop'], crop_info['img_crop_256x256']

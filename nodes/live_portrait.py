@@ -2,10 +2,10 @@ import os
 import sys
 import folder_paths
 import numpy as np
-import torch
+# import torch
 from PIL import Image
 import folder_paths
-import comfy.utils
+# import comfy.utils
 
 
 
@@ -150,12 +150,12 @@ insightface_pretrained_weights=get_model_dir('insightface')
 landmark_runner_ckpt=os.path.join(liveportrait_model,'landmark.onnx')
 # print('#landmark_runner_ckpt',landmark_runner_ckpt)
 inference_cfg = InferenceConfig(
-        models_config=os.path.join(current_directory,r'LivePortrait\src\config\models.yaml'),
-        checkpoint_F=os.path.join(liveportrait_model,r'base_models\appearance_feature_extractor.pth'),
-        checkpoint_M=os.path.join(liveportrait_model,r'base_models\motion_extractor.pth') ,
-        checkpoint_G=os.path.join(liveportrait_model,r'base_models\spade_generator.pth') ,
-        checkpoint_W=os.path.join(liveportrait_model,r'base_models\warping_module.pth'),
-        checkpoint_S=os.path.join(liveportrait_model,r'retargeting_models\stitching_retargeting_module.pth')
+        models_config=os.path.join(current_directory,'LivePortrait','src','config','models.yaml'),
+        checkpoint_F=os.path.join(liveportrait_model,'base_models','appearance_feature_extractor.pth'),
+        checkpoint_M=os.path.join(liveportrait_model,'base_models','motion_extractor.pth') ,
+        checkpoint_G=os.path.join(liveportrait_model,'base_models','spade_generator.pth') ,
+        checkpoint_W=os.path.join(liveportrait_model,'base_models','warping_module.pth'),
+        checkpoint_S=os.path.join(liveportrait_model,'retargeting_models','stitching_retargeting_module.pth')
     )
 
 crop_cfg = CropConfig()
@@ -188,43 +188,30 @@ class LivePortraitNode:
   
     def run(self,source_image,driving_video):
 
-        im=tensor2pil(source_image)
+        pil_image=tensor2pil(source_image)
+        # Convert PIL image to NumPy array
+        opencv_image = np.array(pil_image)
 
         #获取临时目录：temp
         output_dir = folder_paths.get_temp_directory()
-        (
-            full_output_folder,
-            filename,
-            counter,
-            subfolder,
-            _,
-        ) = folder_paths.get_save_image_path('lp_tmp_', output_dir)
+
+        def count_live_portrait_mp4_files(output_dir: str) -> int:
+            count = 0
+            for filename in os.listdir(output_dir):
+                if filename.startswith('live_portrait_') and filename.endswith('.mp4'):
+                    count += 1
+            return count
+
+        counter=count_live_portrait_mp4_files(output_dir)
         
-        image_file = f"{filename}_{counter:05}.png"
+        v_file = f"live_portrait_{counter:05}.mp4"
+        v_file_concat = f"live_portrait_concat_{counter:05}.mp4"
 
-        image_path=os.path.join(full_output_folder, image_file)
-        # 保存图片
-        im.save(image_path,compress_level=6)
-
-
-        #获取临时目录：temp
-        output_dir = folder_paths.get_temp_directory()
-        (
-            full_output_folder,
-            filename,
-            counter,
-            subfolder,
-            _,
-        ) = folder_paths.get_save_image_path('liveportrait', output_dir)
-        
-        v_file = f"{filename}_{counter:05}.mp4"
-        v_file_concat = f"{filename}_concat_{counter:05}.mp4"
-
-        v_path=os.path.join(full_output_folder, v_file)
-        output_path_concat=os.path.join(full_output_folder, v_file_concat)
+        v_path=os.path.join(output_dir, v_file)
+        output_path_concat=os.path.join(output_dir, v_file_concat)
 
         args =  ArgumentConfig(
-            source_image=image_path,
+            source_image=opencv_image,
             driving_info=driving_video,
             output_path=v_path,
             output_path_concat=output_path_concat
@@ -237,7 +224,6 @@ class LivePortraitNode:
             landmark_runner_ckpt=landmark_runner_ckpt,
             insightface_pretrained_weights=insightface_pretrained_weights
         )
-
 
         # run
         live_portrait_pipeline.execute(args)

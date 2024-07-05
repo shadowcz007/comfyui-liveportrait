@@ -6,7 +6,7 @@ config for user
 
 import os.path as osp
 from dataclasses import dataclass
-import tyro
+# import tyro
 from typing_extensions import Annotated
 from .base_config import PrintableConfig, make_abs_path
 

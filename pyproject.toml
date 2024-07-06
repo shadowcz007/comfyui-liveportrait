@@ -10,6 +10,6 @@ Repository = "https://github.com/shadowcz007/comfyui-liveportrait"
 #  Used by Comfy Registry https://comfyregistry.org
 
 [tool.comfy]
-PublisherId = ""
+PublisherId = "shadowcz"
 DisplayName = "comfyui-liveportrait"
 Icon = ""

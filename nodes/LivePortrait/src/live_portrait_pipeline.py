@@ -190,17 +190,19 @@ class LivePortraitPipeline(object):
         if not os.path.exists(directory):
             mkdir(directory)
         wfp_concat = args.output_path_concat
+        video_fps = cv2.VideoCapture(args.driving_info).get(cv2.CAP_PROP_FPS)
         if is_video(args.driving_info):
             frames_concatenated = concat_frames(I_p_lst, driving_rgb_lst, img_crop_256x256)
             # save (driving frames, source image, drived frames) result
             # wfp_concat = osp.join(directory, f'{basename(args.source_image)}--{basename(args.driving_info)}_concat.mp4')
-            images2video(frames_concatenated, wfp=wfp_concat)
+            # images2video(frames_concatenated, wfp=wfp_concat)
+            images2video(frames_concatenated, wfp=wfp_concat, fps=video_fps)
 
         # save drived result
         wfp = args.output_path
         if inference_cfg.flag_pasteback:
-            images2video(I_p_paste_lst, wfp=wfp)
+            images2video(I_p_paste_lst, wfp=wfp, fps=video_fps)
         else:
-            images2video(I_p_lst, wfp=wfp)
+            images2video(I_p_lst, wfp=wfp, fps=video_fps)
 
         return wfp, wfp_concat

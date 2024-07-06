@@ -14,7 +14,6 @@ from .timer import Timer
 def sort_by_direction(faces, direction: str = 'large-small', face_center=None):
     if len(faces) <= 0:
         return faces
-
     if direction == 'left-right':
         return sorted(faces, key=lambda face: face['bbox'][0])
     if direction == 'right-left':

@@ -2,7 +2,7 @@ import os
 import sys
 import folder_paths
 import numpy as np
-# import torch
+import torch
 from PIL import Image
 import folder_paths
 # import comfy.utils
@@ -23,6 +23,11 @@ sys.path.append(current_directory)
 def tensor2pil(image):
     return Image.fromarray(np.clip(255. * image.cpu().numpy().squeeze(), 0, 255).astype(np.uint8))
 
+# Convert PIL to Tensor
+def pil2tensor(image):
+    return torch.from_numpy(np.array(image).astype(np.float32) / 255.0).unsqueeze(0)
+
+
 
 from .LivePortrait.src.live_portrait_pipeline import LivePortraitPipeline
 
@@ -39,7 +44,9 @@ class ArgumentConfig:
                     driving_info,
                     output_path='animations/v.mp4',
                     output_path_concat="",
-                    device_id=0,
+                    device_id=0, 
+                    crop_info =None,
+                    face_index=0,
                     flag_lip_zero=True,
                     flag_eye_retargeting=False,
                     flag_lip_retargeting=False,
@@ -59,6 +66,8 @@ class ArgumentConfig:
         self.driving_info = driving_info
         self.output_path = output_path
         self.output_path_concat=output_path_concat
+        self.crop_info=crop_info
+        self.face_index=face_index
         self.device_id = device_id
         self.flag_lip_zero = flag_lip_zero
         self.flag_eye_retargeting = flag_eye_retargeting
@@ -161,6 +170,65 @@ inference_cfg = InferenceConfig(
 crop_cfg = CropConfig()
 
 
+# 人脸检测并裁切
+class FaceCropInfo:
+    def __init__(self):
+        self.speaker = None
+    @classmethod
+    def INPUT_TYPES(s):
+        
+        return {"required": {
+                        "source_image": ("IMAGE",),
+                        },
+                "optional":{ 
+                            "face_sorting_direction":(["left-right","large-small"],  {"default": "left-right"}),
+                            "face_index":("INT", {"default": 0, "min": -1,"max":200, "step": 1, "display": "number"}),
+                            "debug":("BOOLEAN", {"default": False},),
+                        }
+                }
+    
+    RETURN_TYPES = ("CROP_INFO","IMAGE",)
+    RETURN_NAMES = ("crop_info","debug_image",)
+
+    FUNCTION = "run"
+
+    OUTPUT_NODE = True
+
+    CATEGORY = "♾️Mixlab/Video"
+
+    INPUT_IS_LIST = False
+    OUTPUT_IS_LIST = (True,False,) #list 列表 [1,2,3]
+  
+    def run(self,source_image,face_sorting_direction="left-right",face_index=0,debug=False):
+
+        pil_image=tensor2pil(source_image)
+        # Convert PIL image to NumPy array
+        opencv_image = np.array(pil_image)
+
+        # print('##---------------------------------#landmark_runner_ckpt',landmark_runner_ckpt)
+        live_portrait_pipeline = LivePortraitPipeline(
+            inference_cfg=inference_cfg,
+            crop_cfg=crop_cfg,
+            landmark_runner_ckpt=landmark_runner_ckpt,
+            insightface_pretrained_weights=insightface_pretrained_weights
+        )
+
+        crop_info,debug_image = live_portrait_pipeline.cropper.crop_all_image(
+            opencv_image,
+            direction=face_sorting_direction,
+            debug=debug
+            )
+        
+        debug_image=pil2tensor(debug_image)
+
+        if face_index>-1:
+            #只输出一张 [face]
+            crop_info=[crop_info[face_index]]
+
+        return (crop_info,debug_image,)
+
+
+
 class LivePortraitNode:
     def __init__(self):
         self.speaker = None
@@ -171,9 +239,9 @@ class LivePortraitNode:
                         "source_image": ("IMAGE",),
                         "driving_video":("SCENE_VIDEO",),  
                         },
-                # "optional":{ 
-                #             "skip_refine_text":("BOOLEAN", {"default": False},),
-                #         }
+                "optional":{  
+                            "crop_info":("CROP_INFO", ),
+                        }
                 }
     
     RETURN_TYPES = ("SCENE_VIDEO","SCENE_VIDEO",)
@@ -183,12 +251,20 @@ class LivePortraitNode:
 
     CATEGORY = "♾️Mixlab/Video"
 
-    INPUT_IS_LIST = False
+    INPUT_IS_LIST = True
     OUTPUT_IS_LIST = (False,False,) #list 列表 [1,2,3]
   
-    def run(self,source_image,driving_video):
+    def run(self,source_image,driving_video,crop_info=None):
+        # print('#crop_info',crop_info,isinstance(crop_info, list))
+        if crop_info!=None and isinstance(crop_info, list)==False:
+            crop_info=[crop_info]
+        
+        if crop_info!=None:
+            crop_info=[ [c] for c in crop_info]
 
-        pil_image=tensor2pil(source_image)
+        driving_video=driving_video[0]
+
+        pil_image=tensor2pil(source_image[0])
         # Convert PIL image to NumPy array
         opencv_image = np.array(pil_image)
 
@@ -214,7 +290,8 @@ class LivePortraitNode:
             source_image=opencv_image,
             driving_info=driving_video,
             output_path=v_path,
-            output_path_concat=output_path_concat
+            output_path_concat=output_path_concat,
+            crop_info=crop_info, 
         )
         
         # print('##---------------------------------#landmark_runner_ckpt',landmark_runner_ckpt)
@@ -226,7 +303,11 @@ class LivePortraitNode:
         )
 
         # run
-        live_portrait_pipeline.execute(args)
+        if crop_info==None:
+            live_portrait_pipeline.execute(args)
+        else:
+            print('#executeForAll',len(crop_info))
+            live_portrait_pipeline.executeForAll(args)
 
         live_portrait_pipeline.live_portrait_wrapper=None
 

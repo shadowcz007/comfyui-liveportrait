@@ -1,6 +1,7 @@
 # coding: utf-8
 
 import numpy as np
+from PIL import Image
 import os.path as osp
 from typing import List, Union, Tuple
 from dataclasses import dataclass, field
@@ -61,20 +62,75 @@ class Cropper(object):
             if hasattr(self.crop_cfg, k):
                 setattr(self.crop_cfg, k, v)
 
-    def crop_single_image(self, obj, **kwargs):
+    # 计算多张人脸结果
+    def crop_all_image(self, obj, **kwargs):
         direction = kwargs.get('direction', 'large-small')
-
+        # face_index =  kwargs.get('face_index', 0)
+        # 是否需要调试图片
+        is_debug =  kwargs.get('debug', False)
+        # print('#crop_single_image',direction,face_index)
         # crop and align a single image
         if isinstance(obj, str):
             img_rgb = load_image_rgb(obj)
         elif isinstance(obj, np.ndarray):
             img_rgb = obj
 
-        src_face = self.face_analysis_wrapper.get(
+        src_faces = self.face_analysis_wrapper.get(
             img_rgb,
             flag_do_landmark_2d_106=True,
             direction=direction
         )
+
+
+        img_with_box=None
+        if is_debug:
+            img_with_box = img_rgb.copy()
+            for index in range(len(src_faces)):
+                src_face=src_faces[index]
+                # 获取人脸框坐标
+                box = src_face['bbox']  # 假设 src_face 有一个 'box' 键，包含了人脸框坐标
+
+                # 绘制人脸框
+                x, y, w, h = map(int, box)
+                
+                cv2.rectangle(img_with_box, (x, y), (w, h), (0, 255, 0), 2)
+
+                # 在图像上绘制索引
+                cv2.putText(
+                    img_with_box, 
+                    str(index), 
+                    (x+10, y + 10),  # 索引显示在框的xia方
+                    cv2.FONT_HERSHEY_SIMPLEX, 
+                    0.9,  # 字体大小
+                    (0, 255, 0),  # 绿色文本
+                    4  # 文本线宽
+                )
+
+        
+        img_with_box = Image.fromarray(img_with_box)
+        return (src_faces,img_with_box)
+
+
+
+    def crop_single_image(self, obj, **kwargs):
+        direction = kwargs.get('direction', 'large-small')
+        face_index =  kwargs.get('face_index', 0)
+        src_face =  kwargs.get('src_face', None)
+        
+        # crop and align a single image
+        if isinstance(obj, str):
+            img_rgb = load_image_rgb(obj)
+        elif isinstance(obj, np.ndarray):
+            img_rgb = obj
+
+        print('#crop_single_image',direction,face_index,src_face)
+
+        if src_face==None:
+            src_face = self.face_analysis_wrapper.get(
+                img_rgb,
+                flag_do_landmark_2d_106=True,
+                direction=direction
+            )
 
         if len(src_face) == 0:
             log('No face detected in the source image.')
@@ -82,7 +138,11 @@ class Cropper(object):
         elif len(src_face) > 1:
             log(f'More than one face detected in the image, only pick one face by rule {direction}.')
 
-        src_face = src_face[0]
+        # 如果人脸数量超过face_index，则取最大值
+        if len(src_face)<=face_index:
+            face_index=len(src_face)-1
+
+        src_face = src_face[face_index]
         pts = src_face.landmark_2d_106
 
         # crop the face

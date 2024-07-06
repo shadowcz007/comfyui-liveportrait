@@ -37,6 +37,26 @@ def add_index_to_filename(output_path, index):
     return new_output_path
 
 
+# 创建固定长度的list，不足的填充
+def create_drivings(elements, max_count, revert=False):
+    if not revert:
+        if max_count <= len(elements):
+            return elements[:max_count]
+        elif len(elements)>0:
+            return [elements[i % len(elements)] for i in range(max_count)]
+        else:
+            return [None for i in range(max_count)]
+    else:
+        if len(elements)==0:
+            return [None for i in range(max_count)]
+        extended_frames = elements + elements[-2:0:-1]  # 正向加反向中间部分
+        if max_count <= len(extended_frames):
+            return extended_frames[:max_count]
+        else:
+            return [extended_frames[i % len(extended_frames)] for i in range(max_count)]
+       
+
+
 def make_abs_path(fn):
     return osp.join(osp.dirname(osp.realpath(__file__)), fn)
 
@@ -54,6 +74,8 @@ class LivePortraitPipeline(object):
         img_rgb=args.source_image
         # 增加人脸好的
         crop_info=args.crop_info
+
+        args.driving_info=args.driving_info[0]
 
         img_rgb = resize_to_limit(img_rgb, inference_cfg.ref_max_shape, inference_cfg.ref_shape_n)
         # log(f"Load source image from {args.source_image}")
@@ -227,41 +249,61 @@ class LivePortraitPipeline(object):
         img_rgb = args.source_image
         # 增加人脸好的
         crop_info_list = args.crop_info
+        # 对齐多个驱动视频的长度
+        align_mode=args.align_mode
 
         img_rgb = resize_to_limit(img_rgb, inference_cfg.ref_max_shape, inference_cfg.ref_shape_n)
         # log(f"Load source image from {args.source_image}")
         # todo 人脸检测并裁切 - 独立一个节点
         crop_info_list = [self.cropper.crop_single_image(img_rgb, src_face=crop_info) for crop_info in crop_info_list]
 
+        video_fps = cv2.VideoCapture(args.driving_info[0]).get(cv2.CAP_PROP_FPS)
 
-        video_fps = cv2.VideoCapture(args.driving_info).get(cv2.CAP_PROP_FPS)
+        driving_infos=args.driving_info
 
         ######## process driving info ########
-        self.driving_lmk_lst=None
-        self.n_frames=None
-        if is_video(args.driving_info):
-            log(f"Load from video file (mp4 mov avi etc...): {args.driving_info}")
-            # TODO: 这里track一下驱动视频 -> 构建模板
-            driving_rgb_lst = load_driving_info(args.driving_info)
-            driving_rgb_lst_256 = [cv2.resize(_, (256, 256)) for _ in driving_rgb_lst]
-            I_d_lst = self.live_portrait_wrapper.prepare_driving_videos(driving_rgb_lst_256)
-            self.n_frames = I_d_lst.shape[0]
-            if inference_cfg.flag_eye_retargeting or inference_cfg.flag_lip_retargeting:
-                self.driving_lmk_lst = self.cropper.get_retargeting_lmk_info(driving_rgb_lst)
-                # input_eye_ratio_lst, input_lip_ratio_lst = self.live_portrait_wrapper.calc_retargeting_ratio(source_lmk, driving_lmk_lst)
-        # elif is_template(args.driving_info):
-        #     log(f"Load from video templates {args.driving_info}")
-        #     with open(args.driving_info, 'rb') as f:
-        #         template_lst, driving_lmk_lst = pickle.load(f)
-        #     n_frames = template_lst[0]['n_frames']
-        #     # input_eye_ratio_lst, input_lip_ratio_lst = self.live_portrait_wrapper.calc_retargeting_ratio(source_lmk, driving_lmk_lst)
-        # else:
-        #     raise Exception("Unsupported driving types!")
-        #########################################
-        # print('#driving_lmk_lst',self.driving_lmk_lst)
+        driving_lmk_lst_s=[]
+        n_frames_s=[]
+        I_d_lst_s=[]
+
+        
+        for driving_info in driving_infos:
+
+            if is_video(driving_info):
+                log(f"Load from video file (mp4 mov avi etc...): {driving_info}")
+                # TODO: 这里track一下驱动视频 -> 构建模板
+                driving_rgb_lst = load_driving_info(driving_info)
+                driving_rgb_lst_256 = [cv2.resize(_, (256, 256)) for _ in driving_rgb_lst]
+                I_d_lst = self.live_portrait_wrapper.prepare_driving_videos(driving_rgb_lst_256)
+                n_frames = I_d_lst.shape[0]
+                
+                I_d_lst_s.append(I_d_lst)
+                n_frames_s.append(n_frames)
+
+                if inference_cfg.flag_eye_retargeting or inference_cfg.flag_lip_retargeting:
+                    driving_lmk_lst = self.cropper.get_retargeting_lmk_info(driving_rgb_lst)
+                    driving_lmk_lst_s.append(driving_lmk_lst)
+                    # input_eye_ratio_lst, input_lip_ratio_lst = self.live_portrait_wrapper.calc_retargeting_ratio(source_lmk, driving_lmk_lst)
+            # elif is_template(args.driving_info):
+            #     log(f"Load from video templates {args.driving_info}")
+            #     with open(args.driving_info, 'rb') as f:
+            #         template_lst, driving_lmk_lst = pickle.load(f)
+            #     n_frames = template_lst[0]['n_frames']
+            #     # input_eye_ratio_lst, input_lip_ratio_lst = self.live_portrait_wrapper.calc_retargeting_ratio(source_lmk, driving_lmk_lst)
+            # else:
+            #     raise Exception("Unsupported driving types!")
+            #########################################
+            # print('#driving_lmk_lst',self.driving_lmk_lst)
+
+        # 对齐
+        max_n_frames = max(n_frames_s)
+        n_frames_s=[max_n_frames for i in n_frames_s]
+        driving_lmk_lst_s= [create_drivings(d,max_n_frames,align_mode) for d in driving_lmk_lst_s]
+        I_d_lst_s= [create_drivings(i,max_n_frames,align_mode) for i in I_d_lst_s]
+
 
         # 原图片---视频帧
-        img_rgbs=[img_rgb for i in range(self.n_frames)]
+        img_rgbs=[img_rgb for i in range(n_frames_s[0])]
         
 
         for index in range(len(crop_info_list)):
@@ -289,8 +331,13 @@ class LivePortraitPipeline(object):
                 else:
                     lip_delta_before_animation = self.live_portrait_wrapper.retarget_lip(x_s, combined_lip_ratio_tensor_before_animation)
             ############################################
-            if self.driving_lmk_lst!=None:
-                input_eye_ratio_lst, input_lip_ratio_lst = self.live_portrait_wrapper.calc_retargeting_ratio(source_lmk, self.driving_lmk_lst)
+
+            # 多个驱动视频
+            if 0 <= index < len(driving_lmk_lst_s):
+                driving_lmk_lst=driving_lmk_lst_s[index]
+                
+                if driving_lmk_lst!=None:
+                    input_eye_ratio_lst, input_lip_ratio_lst = self.live_portrait_wrapper.calc_retargeting_ratio(source_lmk, driving_lmk_lst)
 
             ######## prepare for pasteback ########
             if inference_cfg.flag_pasteback:
@@ -304,11 +351,17 @@ class LivePortraitPipeline(object):
             I_p_lst = []
             R_d_0, x_d_0_info = None, None
 
-            pbar = comfy.utils.ProgressBar(self.n_frames)
+            # 多个驱动视频
+            n_frames=n_frames_s[index]
+            driving_info=driving_infos[index]
+            I_d_lst=I_d_lst_s[index]
 
-            for i in track(range(self.n_frames), description='Animating...', total=self.n_frames):
 
-                if is_video(args.driving_info):
+            pbar = comfy.utils.ProgressBar(n_frames)
+
+            for i in track(range(n_frames), description='Animating...', total=n_frames):
+
+                if is_video(driving_info):
                     # extract kp info by M
                     I_d_i = I_d_lst[i]
                     x_d_i_info = self.live_portrait_wrapper.get_kp_info(I_d_i)

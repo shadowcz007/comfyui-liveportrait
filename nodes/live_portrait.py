@@ -47,6 +47,7 @@ class ArgumentConfig:
                     device_id=0, 
                     crop_info =None,
                     face_index=0,
+                    align_mode=True,
                     flag_lip_zero=True,
                     flag_eye_retargeting=False,
                     flag_lip_retargeting=False,
@@ -68,6 +69,7 @@ class ArgumentConfig:
         self.output_path_concat=output_path_concat
         self.crop_info=crop_info
         self.face_index=face_index
+        self.align_mode=align_mode
         self.device_id = device_id
         self.flag_lip_zero = flag_lip_zero
         self.flag_eye_retargeting = flag_eye_retargeting
@@ -172,8 +174,6 @@ crop_cfg = CropConfig()
 
 # 人脸检测并裁切
 class FaceCropInfo:
-    def __init__(self):
-        self.speaker = None
     @classmethod
     def INPUT_TYPES(s):
         
@@ -228,6 +228,38 @@ class FaceCropInfo:
         return (crop_info,debug_image,)
 
 
+# 驱动模板制作
+# class DriveVideoNode:
+
+#     @classmethod
+#     def INPUT_TYPES(s):
+        
+#         return {"required": {
+#                         "driving_video1":("SCENE_VIDEO",),
+#                         "driving_video2":("SCENE_VIDEO",),
+#                         },
+#                 # "optional":{ 
+#                 #         "face_index":("INT", {"default": 0, "min": -1,"max":200, "step": 1, "display": "number"}),
+                        
+#                 #         }
+#                 }
+    
+#     RETURN_TYPES = ("DRIVING_VIDEO",)
+#     RETURN_NAMES = ("driving_video",)
+
+#     FUNCTION = "run"
+
+#     OUTPUT_NODE = True
+
+#     CATEGORY = "♾️Mixlab/Video"
+
+#     INPUT_IS_LIST = False
+#     OUTPUT_IS_LIST = (True,) #list 列表 [1,2,3]
+  
+#     def run(self,driving_video1, driving_video2 ):
+        
+#         return ([driving_video1, driving_video2],)
+    
 
 class LivePortraitNode:
     def __init__(self):
@@ -241,6 +273,7 @@ class LivePortraitNode:
                         },
                 "optional":{  
                             "crop_info":("CROP_INFO", ),
+                            "driving_video_reverse_align":("BOOLEAN", {"default": True},),
                         }
                 }
     
@@ -254,15 +287,13 @@ class LivePortraitNode:
     INPUT_IS_LIST = True
     OUTPUT_IS_LIST = (False,False,) #list 列表 [1,2,3]
   
-    def run(self,source_image,driving_video,crop_info=None):
+    def run(self,source_image,driving_video,crop_info=None,driving_video_reverse_align=True):
         # print('#crop_info',crop_info,isinstance(crop_info, list))
         if crop_info!=None and isinstance(crop_info, list)==False:
             crop_info=[crop_info]
         
         if crop_info!=None:
             crop_info=[ [c] for c in crop_info]
-
-        driving_video=driving_video[0]
 
         pil_image=tensor2pil(source_image[0])
         # Convert PIL image to NumPy array
@@ -286,14 +317,6 @@ class LivePortraitNode:
         v_path=os.path.join(output_dir, v_file)
         output_path_concat=os.path.join(output_dir, v_file_concat)
 
-        args =  ArgumentConfig(
-            source_image=opencv_image,
-            driving_info=driving_video,
-            output_path=v_path,
-            output_path_concat=output_path_concat,
-            crop_info=crop_info, 
-        )
-        
         # print('##---------------------------------#landmark_runner_ckpt',landmark_runner_ckpt)
         live_portrait_pipeline = LivePortraitPipeline(
             inference_cfg=inference_cfg,
@@ -304,9 +327,40 @@ class LivePortraitNode:
 
         # run
         if crop_info==None:
+
+            args =  ArgumentConfig(
+                source_image=opencv_image,
+                driving_info=[driving_video[0]],
+                output_path=v_path,
+                output_path_concat=output_path_concat,
+                crop_info=crop_info, 
+            )
+
             live_portrait_pipeline.execute(args)
         else:
-            print('#executeForAll',len(crop_info))
+
+            if len(driving_video)!=len(crop_info):
+                last_d=driving_video[-1]
+                ds=[]
+                #todo 视频的帧要对齐
+                for i in range(len(crop_info)):
+                    if driving_video[i]:
+                        ds.append(driving_video[i])
+                    else:
+                        ds.append(last_d)
+                driving_video=ds
+            
+                
+            args =  ArgumentConfig(
+                source_image=opencv_image,
+                driving_info=driving_video,
+                output_path=v_path,
+                output_path_concat=output_path_concat,
+                crop_info=crop_info, 
+                align_mode=driving_video_reverse_align==False
+            )
+
+            # print('#executeForAll',len(crop_info))
             live_portrait_pipeline.executeForAll(args)
 
         live_portrait_pipeline.live_portrait_wrapper=None

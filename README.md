@@ -1,6 +1,6 @@
 [LivePortrait](https://github.com/KwaiVGI/LivePortrait)的Comfyui版本。
 
-!! 支持多人脸 
+!! 支持多人脸 、不同的脸 指定不同的动画
 
 > [寻求帮助 Mixlab nodes discord](https://discord.gg/cXs9vZSqeK)
 
@@ -12,6 +12,10 @@
 > 配合 [comfyui-mixlab-nodes](https://github.com/shadowcz007/comfyui-mixlab-nodes) 使用
 
 > 全家福
+
+[![alt text](example/1720268832629.png)](example/mul-workflow.json)
+[不同脸对应不同的驱动视频 Workflow JSON](example/mul-workflow.json)
+
 
 [![alt text](example/1720256574305.png)](example/全家福模式-workflow.json)
 

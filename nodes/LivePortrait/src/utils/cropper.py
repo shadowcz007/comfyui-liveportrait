@@ -123,7 +123,7 @@ class Cropper(object):
         elif isinstance(obj, np.ndarray):
             img_rgb = obj
 
-        print('#crop_single_image',direction,face_index,src_face)
+        # print('#crop_single_image',direction,face_index,src_face)
 
         if src_face==None:
             src_face = self.face_analysis_wrapper.get(

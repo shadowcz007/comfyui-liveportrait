@@ -258,7 +258,7 @@ class LivePortraitPipeline(object):
         # else:
         #     raise Exception("Unsupported driving types!")
         #########################################
-        print('#driving_lmk_lst',self.driving_lmk_lst)
+        # print('#driving_lmk_lst',self.driving_lmk_lst)
 
         # 原图片---视频帧
         img_rgbs=[img_rgb for i in range(self.n_frames)]

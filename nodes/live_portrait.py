@@ -50,7 +50,7 @@ class ArgumentConfig:
                     align_mode=True,
                     flag_lip_zero=True,
                     flag_eye_retargeting=False,
-                    flag_lip_retargeting=False,
+                    flag_lip_retargeting=False, 
                     flag_stitching=True,
                     flag_relative=True,
                     flag_pasteback=True,
@@ -73,7 +73,7 @@ class ArgumentConfig:
         self.device_id = device_id
         self.flag_lip_zero = flag_lip_zero
         self.flag_eye_retargeting = flag_eye_retargeting
-        self.flag_lip_retargeting = flag_lip_retargeting
+        self.flag_lip_retargeting = flag_lip_retargeting 
         self.flag_stitching = flag_stitching
         self.flag_relative = flag_relative
         self.flag_pasteback = flag_pasteback
@@ -194,7 +194,7 @@ class FaceCropInfo:
 
     OUTPUT_NODE = True
 
-    CATEGORY = "♾️Mixlab/Video"
+    CATEGORY = "♾️Mixlab/Video/LivePortrait"
 
     INPUT_IS_LIST = False
     OUTPUT_IS_LIST = (True,False,) #list 列表 [1,2,3]
@@ -225,7 +225,48 @@ class FaceCropInfo:
             #只输出一张 [face]
             crop_info=[crop_info[face_index]]
 
-        return (crop_info,debug_image,)
+
+        result=[]
+
+        for c in crop_info:
+            c['__eye__']=True
+            c['__lip__']=True
+            result.append(c)
+
+        return (result,debug_image,)
+
+
+# 人脸检测并裁切
+class Retargeting:
+    @classmethod
+    def INPUT_TYPES(s):
+        
+        return {"required": {
+                        "crop_info": ("CROP_INFO",),
+                        },
+                "optional":{ 
+                           "lip":("BOOLEAN", {"default": True},),
+                           "eye":("BOOLEAN", {"default": True},),
+                        }
+                }
+    
+    RETURN_TYPES = ("CROP_INFO",)
+    RETURN_NAMES = ("crop_info",)
+
+    FUNCTION = "run"
+
+    OUTPUT_NODE = True
+
+    CATEGORY = "♾️Mixlab/Video/LivePortrait"
+
+    INPUT_IS_LIST = False
+    OUTPUT_IS_LIST = (False,) #list 列表 [1,2,3]
+  
+    def run(self,crop_info,lip=True,eye=True):
+        crop_info['__eye__']=eye
+        crop_info['__lip__']=lip
+        return (crop_info,)
+
 
 
 # 驱动模板制作
@@ -282,7 +323,7 @@ class LivePortraitNode:
 
     FUNCTION = "run"
 
-    CATEGORY = "♾️Mixlab/Video"
+    CATEGORY = "♾️Mixlab/Video/LivePortrait"
 
     INPUT_IS_LIST = True
     OUTPUT_IS_LIST = (False,False,) #list 列表 [1,2,3]

@@ -51,7 +51,7 @@ face_index：指定要处理的人脸索引，默认值为 -1，表示处理所�
 
 debug：开启或关闭调试模式。设置为 true 时，会输出调试图像以便查看人脸检测和裁剪区域；设置为 false 时，不输出调试图像。
 
-
+##### Retargeting 可开关eye lip是否驱动
 
 
 ### models

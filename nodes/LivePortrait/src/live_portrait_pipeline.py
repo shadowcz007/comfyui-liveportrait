@@ -249,6 +249,10 @@ class LivePortraitPipeline(object):
         img_rgb = args.source_image
         # 增加人脸好的
         crop_info_list = args.crop_info
+        # eye lip
+        __eye__s=[c[0]['__eye__'] for c in crop_info_list]
+        __lip__s=[c[0]['__lip__'] for c in crop_info_list]
+
         # 对齐多个驱动视频的长度
         align_mode=args.align_mode
 
@@ -266,8 +270,15 @@ class LivePortraitPipeline(object):
         n_frames_s=[]
         I_d_lst_s=[]
 
-        
-        for driving_info in driving_infos:
+        pbar = comfy.utils.ProgressBar(len(driving_infos))
+        for  z in range(len(driving_infos)):
+
+            driving_info=driving_infos[z]
+            crop_info=crop_info_list[z]
+            # print('###',z,len(driving_infos),len(crop_info_list))
+            # print('#crop_info_list[z]',crop_info_list[z])
+            __eye__=__eye__s[z]
+            __lip__=__lip__s[z]
 
             if is_video(driving_info):
                 log(f"Load from video file (mp4 mov avi etc...): {driving_info}")
@@ -280,10 +291,14 @@ class LivePortraitPipeline(object):
                 I_d_lst_s.append(I_d_lst)
                 n_frames_s.append(n_frames)
 
-                if inference_cfg.flag_eye_retargeting or inference_cfg.flag_lip_retargeting:
+                source_lmk = crop_info['lmk_crop']
+                if __eye__ or __lip__:
                     driving_lmk_lst = self.cropper.get_retargeting_lmk_info(driving_rgb_lst)
                     driving_lmk_lst_s.append(driving_lmk_lst)
-                    # input_eye_ratio_lst, input_lip_ratio_lst = self.live_portrait_wrapper.calc_retargeting_ratio(source_lmk, driving_lmk_lst)
+                    input_eye_ratio_lst, input_lip_ratio_lst = self.live_portrait_wrapper.calc_retargeting_ratio(
+                        source_lmk, 
+                        driving_lmk_lst
+                        )
             # elif is_template(args.driving_info):
             #     log(f"Load from video templates {args.driving_info}")
             #     with open(args.driving_info, 'rb') as f:
@@ -294,6 +309,7 @@ class LivePortraitPipeline(object):
             #     raise Exception("Unsupported driving types!")
             #########################################
             # print('#driving_lmk_lst',self.driving_lmk_lst)
+            pbar.update(1)
 
         # 对齐
         max_n_frames = max(n_frames_s)
@@ -311,6 +327,10 @@ class LivePortraitPipeline(object):
             crop_info=crop_info_list[index]
             # 地一张脸
 
+            __eye__=__eye__s[index]
+            __lip__=__lip__s[index]
+            
+            print('#crop_info',crop_info.keys())
             source_lmk = crop_info['lmk_crop']
             img_crop, img_crop_256x256 = crop_info['img_crop'], crop_info['img_crop_256x256']
             if inference_cfg.flag_do_crop:
@@ -386,13 +406,13 @@ class LivePortraitPipeline(object):
                 x_d_i_new = scale_new * (x_c_s @ R_new + delta_new) + t_new
 
                 # Algorithm 1:
-                if not inference_cfg.flag_stitching and not inference_cfg.flag_eye_retargeting and not inference_cfg.flag_lip_retargeting:
+                if not inference_cfg.flag_stitching and not __eye__ and not __lip__:
                     # without stitching or retargeting
                     if inference_cfg.flag_lip_zero:
                         x_d_i_new += lip_delta_before_animation.reshape(-1, x_s.shape[1], 3)
                     else:
                         pass
-                elif inference_cfg.flag_stitching and not inference_cfg.flag_eye_retargeting and not inference_cfg.flag_lip_retargeting:
+                elif inference_cfg.flag_stitching and not __eye__ and not __lip__:
                     # with stitching and without retargeting
                     if inference_cfg.flag_lip_zero:
                         x_d_i_new = self.live_portrait_wrapper.stitching(x_s, x_d_i_new) + lip_delta_before_animation.reshape(-1, x_s.shape[1], 3)
@@ -400,12 +420,12 @@ class LivePortraitPipeline(object):
                         x_d_i_new = self.live_portrait_wrapper.stitching(x_s, x_d_i_new)
                 else:
                     eyes_delta, lip_delta = None, None
-                    if inference_cfg.flag_eye_retargeting:
+                    if __eye__:
                         c_d_eyes_i = input_eye_ratio_lst[i]
                         combined_eye_ratio_tensor = self.live_portrait_wrapper.calc_combined_eye_ratio(c_d_eyes_i, source_lmk)
                         # ∆_eyes,i = R_eyes(x_s; c_s,eyes, c_d,eyes,i)
                         eyes_delta = self.live_portrait_wrapper.retarget_eye(x_s, combined_eye_ratio_tensor)
-                    if inference_cfg.flag_lip_retargeting:
+                    if __lip__:
                         c_d_lip_i = input_lip_ratio_lst[i]
                         combined_lip_ratio_tensor = self.live_portrait_wrapper.calc_combined_lip_ratio(c_d_lip_i, source_lmk)
                         # ∆_lip,i = R_lip(x_s; c_s,lip, c_d,lip,i)

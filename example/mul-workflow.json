@@ -1,208 +1,7 @@
 {
-  "last_node_id": 65,
-  "last_link_id": 117,
+  "last_node_id": 68,
+  "last_link_id": 125,
   "nodes": [
-    {
-      "id": 50,
-      "type": "VideoCombine_Adv",
-      "pos": [
-        2190.4750166215863,
-        768.5878407330013
-      ],
-      "size": [
-        474.4087219238281,
-        686.4087219238281
-      ],
-      "flags": {},
-      "order": 21,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "image_batch",
-          "type": "IMAGE",
-          "link": 91
-        },
-        {
-          "name": "frame_rate",
-          "type": "INT",
-          "link": 96,
-          "widget": {
-            "name": "frame_rate"
-          }
-        }
-      ],
-      "outputs": [
-        {
-          "name": "scenes_video",
-          "type": "SCENE_VIDEO",
-          "links": null,
-          "shape": 3
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "VideoCombine_Adv"
-      },
-      "widgets_values": [
-        18,
-        0,
-        "Comfyui",
-        "video/h264-mp4",
-        false,
-        false,
-        false,
-        "/view?filename=Comfyui_00002_.mp4&subfolder=&type=temp&format=video%2Fh264-mp4"
-      ]
-    },
-    {
-      "id": 51,
-      "type": "ScenesNode_",
-      "pos": [
-        1750.4750166215856,
-        758.5878407330013
-      ],
-      "size": {
-        "0": 315,
-        "1": 78
-      },
-      "flags": {},
-      "order": 20,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "scenes_video",
-          "type": "SCENE_VIDEO",
-          "link": 92
-        }
-      ],
-      "outputs": [
-        {
-          "name": "frames",
-          "type": "IMAGE",
-          "links": [
-            91
-          ],
-          "shape": 3
-        },
-        {
-          "name": "count",
-          "type": "INT",
-          "links": null,
-          "shape": 3
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "ScenesNode_"
-      },
-      "widgets_values": [
-        0
-      ]
-    },
-    {
-      "id": 52,
-      "type": "LivePortraitNode",
-      "pos": [
-        1749.4750166215856,
-        911.5878407330013
-      ],
-      "size": {
-        "0": 330,
-        "1": 98
-      },
-      "flags": {},
-      "order": 19,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "source_image",
-          "type": "IMAGE",
-          "link": 95
-        },
-        {
-          "name": "driving_video",
-          "type": "SCENE_VIDEO",
-          "link": 105
-        },
-        {
-          "name": "crop_info",
-          "type": "CROP_INFO",
-          "link": 109
-        }
-      ],
-      "outputs": [
-        {
-          "name": "video",
-          "type": "SCENE_VIDEO",
-          "links": [
-            92
-          ],
-          "shape": 3
-        },
-        {
-          "name": "video_concat",
-          "type": "SCENE_VIDEO",
-          "links": null,
-          "shape": 3
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "LivePortraitNode"
-      },
-      "widgets_values": [
-        false
-      ]
-    },
-    {
-      "id": 44,
-      "type": "SwitchByIndex",
-      "pos": [
-        1362,
-        810
-      ],
-      "size": {
-        "0": 315,
-        "1": 102
-      },
-      "flags": {},
-      "order": 9,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "A",
-          "type": "*",
-          "link": 75
-        },
-        {
-          "name": "B",
-          "type": "*",
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "name": "list",
-          "type": "*",
-          "links": [
-            77
-          ],
-          "shape": 6,
-          "slot_index": 0
-        },
-        {
-          "name": "count",
-          "type": "INT",
-          "links": null,
-          "shape": 3
-        }
-      ],
-      "title": "第一个人脸",
-      "properties": {
-        "Node name for S&R": "SwitchByIndex"
-      },
-      "widgets_values": [
-        0,
-        "on"
-      ]
-    },
     {
       "id": 9,
       "type": "LoadImagesToBatch",
@@ -248,10 +47,10 @@
         691,
         1089
       ],
-      "size": [
-        567.827510530492,
-        337.2503309362837
-      ],
+      "size": {
+        "0": 567.8275146484375,
+        "1": 337.2503356933594
+      },
       "flags": {},
       "order": 12,
       "mode": 0,
@@ -319,57 +118,6 @@
         0,
         null,
         "video"
-      ]
-    },
-    {
-      "id": 55,
-      "type": "SwitchByIndex",
-      "pos": [
-        1282,
-        83
-      ],
-      "size": {
-        "0": 315,
-        "1": 102
-      },
-      "flags": {},
-      "order": 13,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "A",
-          "type": "*",
-          "link": 98
-        },
-        {
-          "name": "B",
-          "type": "*",
-          "link": 99
-        }
-      ],
-      "outputs": [
-        {
-          "name": "list",
-          "type": "*",
-          "links": [
-            104
-          ],
-          "shape": 6,
-          "slot_index": 0
-        },
-        {
-          "name": "count",
-          "type": "INT",
-          "links": null,
-          "shape": 3
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "SwitchByIndex"
-      },
-      "widgets_values": [
-        -1,
-        "on"
       ]
     },
     {
@@ -576,110 +324,6 @@
       },
       "widgets_values": [
         2,
-        "on"
-      ]
-    },
-    {
-      "id": 46,
-      "type": "SwitchByIndex",
-      "pos": [
-        1374,
-        1171
-      ],
-      "size": {
-        "0": 315,
-        "1": 102
-      },
-      "flags": {},
-      "order": 15,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "A",
-          "type": "*",
-          "link": 77
-        },
-        {
-          "name": "B",
-          "type": "*",
-          "link": 83
-        }
-      ],
-      "outputs": [
-        {
-          "name": "list",
-          "type": "*",
-          "links": [
-            107
-          ],
-          "shape": 6,
-          "slot_index": 0
-        },
-        {
-          "name": "count",
-          "type": "INT",
-          "links": null,
-          "shape": 3
-        }
-      ],
-      "title": "合并crop_info",
-      "properties": {
-        "Node name for S&R": "SwitchByIndex"
-      },
-      "widgets_values": [
-        -1,
-        "on"
-      ]
-    },
-    {
-      "id": 61,
-      "type": "SwitchByIndex",
-      "pos": [
-        1757,
-        1142
-      ],
-      "size": {
-        "0": 315,
-        "1": 102
-      },
-      "flags": {},
-      "order": 18,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "A",
-          "type": "*",
-          "link": 107
-        },
-        {
-          "name": "B",
-          "type": "*",
-          "link": 108
-        }
-      ],
-      "outputs": [
-        {
-          "name": "list",
-          "type": "*",
-          "links": [
-            109
-          ],
-          "shape": 6,
-          "slot_index": 0
-        },
-        {
-          "name": "count",
-          "type": "INT",
-          "links": null,
-          "shape": 3
-        }
-      ],
-      "title": "合并crop_info",
-      "properties": {
-        "Node name for S&R": "SwitchByIndex"
-      },
-      "widgets_values": [
-        -1,
         "on"
       ]
     },
@@ -1034,11 +678,316 @@
       ]
     },
     {
+      "id": 50,
+      "type": "VideoCombine_Adv",
+      "pos": [
+        2547,
+        772
+      ],
+      "size": [
+        474.4087219238281,
+        686.4087219238281
+      ],
+      "flags": {},
+      "order": 22,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image_batch",
+          "type": "IMAGE",
+          "link": 91
+        },
+        {
+          "name": "frame_rate",
+          "type": "INT",
+          "link": 96,
+          "widget": {
+            "name": "frame_rate"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "scenes_video",
+          "type": "SCENE_VIDEO",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VideoCombine_Adv"
+      },
+      "widgets_values": [
+        18,
+        0,
+        "Comfyui",
+        "video/h264-mp4",
+        false,
+        false,
+        false,
+        "/view?filename=Comfyui_00002_.mp4&subfolder=&type=temp&format=video%2Fh264-mp4"
+      ]
+    },
+    {
+      "id": 51,
+      "type": "ScenesNode_",
+      "pos": [
+        2179,
+        770
+      ],
+      "size": {
+        "0": 315,
+        "1": 78
+      },
+      "flags": {},
+      "order": 21,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "scenes_video",
+          "type": "SCENE_VIDEO",
+          "link": 92
+        }
+      ],
+      "outputs": [
+        {
+          "name": "frames",
+          "type": "IMAGE",
+          "links": [
+            91
+          ],
+          "shape": 3
+        },
+        {
+          "name": "count",
+          "type": "INT",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ScenesNode_"
+      },
+      "widgets_values": [
+        0
+      ]
+    },
+    {
+      "id": 52,
+      "type": "LivePortraitNode",
+      "pos": [
+        2193,
+        916
+      ],
+      "size": {
+        "0": 330,
+        "1": 98
+      },
+      "flags": {},
+      "order": 20,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "source_image",
+          "type": "IMAGE",
+          "link": 95
+        },
+        {
+          "name": "driving_video",
+          "type": "SCENE_VIDEO",
+          "link": 105
+        },
+        {
+          "name": "crop_info",
+          "type": "CROP_INFO",
+          "link": 109
+        }
+      ],
+      "outputs": [
+        {
+          "name": "video",
+          "type": "SCENE_VIDEO",
+          "links": [
+            92
+          ],
+          "shape": 3
+        },
+        {
+          "name": "video_concat",
+          "type": "SCENE_VIDEO",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LivePortraitNode"
+      },
+      "widgets_values": [
+        false
+      ]
+    },
+    {
+      "id": 46,
+      "type": "SwitchByIndex",
+      "pos": [
+        1821,
+        1084
+      ],
+      "size": {
+        "0": 315,
+        "1": 102
+      },
+      "flags": {},
+      "order": 18,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "A",
+          "type": "*",
+          "link": 124
+        },
+        {
+          "name": "B",
+          "type": "*",
+          "link": 83
+        }
+      ],
+      "outputs": [
+        {
+          "name": "list",
+          "type": "*",
+          "links": [
+            107
+          ],
+          "shape": 6,
+          "slot_index": 0
+        },
+        {
+          "name": "count",
+          "type": "INT",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "title": "合并crop_info",
+      "properties": {
+        "Node name for S&R": "SwitchByIndex"
+      },
+      "widgets_values": [
+        -1,
+        "on"
+      ]
+    },
+    {
+      "id": 44,
+      "type": "SwitchByIndex",
+      "pos": [
+        1362,
+        810
+      ],
+      "size": {
+        "0": 315,
+        "1": 102
+      },
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "A",
+          "type": "*",
+          "link": 75
+        },
+        {
+          "name": "B",
+          "type": "*",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "list",
+          "type": "*",
+          "links": [
+            123
+          ],
+          "shape": 6,
+          "slot_index": 0
+        },
+        {
+          "name": "count",
+          "type": "INT",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "title": "第一个人脸",
+      "properties": {
+        "Node name for S&R": "SwitchByIndex"
+      },
+      "widgets_values": [
+        0,
+        "on"
+      ]
+    },
+    {
+      "id": 61,
+      "type": "SwitchByIndex",
+      "pos": [
+        2212,
+        1109
+      ],
+      "size": {
+        "0": 315,
+        "1": 102
+      },
+      "flags": {},
+      "order": 19,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "A",
+          "type": "*",
+          "link": 107
+        },
+        {
+          "name": "B",
+          "type": "*",
+          "link": 108
+        }
+      ],
+      "outputs": [
+        {
+          "name": "list",
+          "type": "*",
+          "links": [
+            109
+          ],
+          "shape": 6,
+          "slot_index": 0
+        },
+        {
+          "name": "count",
+          "type": "INT",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "title": "合并crop_info",
+      "properties": {
+        "Node name for S&R": "SwitchByIndex"
+      },
+      "widgets_values": [
+        -1,
+        "on"
+      ]
+    },
+    {
       "id": 34,
       "type": "SwitchByIndex",
       "pos": [
-        822,
-        38
+        455,
+        9
       ],
       "size": {
         "0": 315,
@@ -1064,7 +1013,7 @@
           "name": "list",
           "type": "*",
           "links": [
-            98
+            122
           ],
           "shape": 6,
           "slot_index": 0
@@ -1083,6 +1032,97 @@
       "widgets_values": [
         0,
         "on"
+      ]
+    },
+    {
+      "id": 55,
+      "type": "SwitchByIndex",
+      "pos": [
+        1282,
+        83
+      ],
+      "size": {
+        "0": 315,
+        "1": 102
+      },
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "A",
+          "type": "*",
+          "link": 122
+        },
+        {
+          "name": "B",
+          "type": "*",
+          "link": 99
+        }
+      ],
+      "outputs": [
+        {
+          "name": "list",
+          "type": "*",
+          "links": [
+            104
+          ],
+          "shape": 6,
+          "slot_index": 0
+        },
+        {
+          "name": "count",
+          "type": "INT",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SwitchByIndex"
+      },
+      "widgets_values": [
+        -1,
+        "on"
+      ]
+    },
+    {
+      "id": 66,
+      "type": "Retargeting",
+      "pos": [
+        1759,
+        820
+      ],
+      "size": {
+        "0": 315,
+        "1": 82
+      },
+      "flags": {},
+      "order": 15,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "crop_info",
+          "type": "CROP_INFO",
+          "link": 123
+        }
+      ],
+      "outputs": [
+        {
+          "name": "crop_info",
+          "type": "CROP_INFO",
+          "links": [
+            124
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "Retargeting"
+      },
+      "widgets_values": [
+        false,
+        true
       ]
     }
   ],
@@ -1116,14 +1156,6 @@
       41,
       0,
       45,
-      0,
-      "*"
-    ],
-    [
-      77,
-      44,
-      0,
-      46,
       0,
       "*"
     ],
@@ -1172,14 +1204,6 @@
       53,
       0,
       54,
-      0,
-      "*"
-    ],
-    [
-      98,
-      34,
-      0,
-      55,
       0,
       "*"
     ],
@@ -1294,6 +1318,30 @@
       62,
       0,
       "IMAGE"
+    ],
+    [
+      122,
+      34,
+      0,
+      55,
+      0,
+      "*"
+    ],
+    [
+      123,
+      44,
+      0,
+      66,
+      0,
+      "CROP_INFO"
+    ],
+    [
+      124,
+      66,
+      0,
+      46,
+      0,
+      "*"
     ]
   ],
   "groups": [

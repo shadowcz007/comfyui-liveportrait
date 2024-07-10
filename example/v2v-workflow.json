@@ -1,0 +1,583 @@
+{
+  "last_node_id": 50,
+  "last_link_id": 82,
+  "nodes": [
+    {
+      "id": 22,
+      "type": "VideoCombine_Adv",
+      "pos": [
+        1722,
+        192
+      ],
+      "size": [
+        593.4324340820312,
+        809.4324340820312
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image_batch",
+          "type": "IMAGE",
+          "link": 65
+        }
+      ],
+      "outputs": [
+        {
+          "name": "scenes_video",
+          "type": "SCENE_VIDEO",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VideoCombine_Adv"
+      },
+      "widgets_values": [
+        4,
+        0,
+        "Comfyui",
+        "video/h264-mp4",
+        false,
+        false,
+        false,
+        "/view?filename=Comfyui_00012_.mp4&subfolder=&type=temp&format=video%2Fh264-mp4"
+      ]
+    },
+    {
+      "id": 47,
+      "type": "ScenesNode_",
+      "pos": [
+        922,
+        796
+      ],
+      "size": {
+        "0": 299.8379821777344,
+        "1": 78
+      },
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "scenes_video",
+          "type": "SCENE_VIDEO",
+          "link": 70
+        }
+      ],
+      "outputs": [
+        {
+          "name": "video frames (batch)",
+          "type": "IMAGE",
+          "links": [
+            69
+          ],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "count",
+          "type": "INT",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ScenesNode_"
+      },
+      "widgets_values": [
+        10
+      ]
+    },
+    {
+      "id": 41,
+      "type": "ScenesNode_",
+      "pos": [
+        500,
+        852
+      ],
+      "size": {
+        "0": 308.9737854003906,
+        "1": 78
+      },
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "scenes_video",
+          "type": "SCENE_VIDEO",
+          "link": 61
+        }
+      ],
+      "outputs": [
+        {
+          "name": "video frames (batch)",
+          "type": "IMAGE",
+          "links": [
+            62,
+            80
+          ],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "count",
+          "type": "INT",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ScenesNode_"
+      },
+      "widgets_values": [
+        0
+      ]
+    },
+    {
+      "id": 42,
+      "type": "VideoCombine_Adv",
+      "pos": [
+        1310,
+        1156
+      ],
+      "size": [
+        483.5287170410156,
+        695.5287170410156
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image_batch",
+          "type": "IMAGE",
+          "link": 62
+        },
+        {
+          "name": "frame_rate",
+          "type": "INT",
+          "link": 63,
+          "widget": {
+            "name": "frame_rate"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "scenes_video",
+          "type": "SCENE_VIDEO",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VideoCombine_Adv"
+      },
+      "widgets_values": [
+        4,
+        0,
+        "Comfyui",
+        "video/h264-mp4",
+        false,
+        false,
+        false,
+        "/view?filename=Comfyui_00010_.mp4&subfolder=&type=temp&format=video%2Fh264-mp4"
+      ]
+    },
+    {
+      "id": 46,
+      "type": "VideoCombine_Adv",
+      "pos": [
+        752,
+        1179
+      ],
+      "size": [
+        483.5287170410156,
+        699.5287170410156
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image_batch",
+          "type": "IMAGE",
+          "link": 69
+        }
+      ],
+      "outputs": [
+        {
+          "name": "scenes_video",
+          "type": "SCENE_VIDEO",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VideoCombine_Adv"
+      },
+      "widgets_values": [
+        4,
+        0,
+        "Comfyui",
+        "video/h264-mp4",
+        false,
+        false,
+        false,
+        "/view?filename=Comfyui_00011_.mp4&subfolder=&type=temp&format=video%2Fh264-mp4"
+      ]
+    },
+    {
+      "id": 39,
+      "type": "SwitchByIndex",
+      "pos": [
+        593,
+        294
+      ],
+      "size": {
+        "0": 315,
+        "1": 102
+      },
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "A",
+          "type": "*",
+          "link": 59
+        },
+        {
+          "name": "B",
+          "type": "*",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "list",
+          "type": "*",
+          "links": [
+            81
+          ],
+          "shape": 6,
+          "slot_index": 0
+        },
+        {
+          "name": "count",
+          "type": "INT",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SwitchByIndex"
+      },
+      "widgets_values": [
+        10,
+        "on"
+      ]
+    },
+    {
+      "id": 50,
+      "type": "LivePortraitVideoNode",
+      "pos": [
+        1216,
+        495
+      ],
+      "size": {
+        "0": 393,
+        "1": 46
+      },
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "source_image_batch",
+          "type": "IMAGE",
+          "link": 80
+        },
+        {
+          "name": "driving_video",
+          "type": "SCENE_VIDEO",
+          "link": 81
+        }
+      ],
+      "outputs": [
+        {
+          "name": "video",
+          "type": "SCENE_VIDEO",
+          "links": [
+            82
+          ],
+          "shape": 3
+        },
+        {
+          "name": "video_concat",
+          "type": "SCENE_VIDEO",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LivePortraitVideoNode"
+      }
+    },
+    {
+      "id": 43,
+      "type": "ScenesNode_",
+      "pos": [
+        1235,
+        326
+      ],
+      "size": {
+        "0": 299.8379821777344,
+        "1": 78
+      },
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "scenes_video",
+          "type": "SCENE_VIDEO",
+          "link": 82
+        }
+      ],
+      "outputs": [
+        {
+          "name": "video frames (batch)",
+          "type": "IMAGE",
+          "links": [
+            65
+          ],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "count",
+          "type": "INT",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ScenesNode_"
+      },
+      "widgets_values": [
+        0
+      ]
+    },
+    {
+      "id": 40,
+      "type": "LoadVideoAndSegment_",
+      "pos": [
+        140,
+        854
+      ],
+      "size": {
+        "0": 315,
+        "1": 214
+      },
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "scenes_video",
+          "type": "SCENE_VIDEO",
+          "links": [
+            61
+          ],
+          "shape": 6,
+          "slot_index": 0
+        },
+        {
+          "name": "scenes_count",
+          "type": "INT",
+          "links": null,
+          "shape": 3
+        },
+        {
+          "name": "frame_count",
+          "type": "INT",
+          "links": null,
+          "shape": 3
+        },
+        {
+          "name": "fps",
+          "type": "INT",
+          "links": [
+            63
+          ],
+          "shape": 3,
+          "slot_index": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadVideoAndSegment_"
+      },
+      "widgets_values": [
+        "WeChat_20240710164802.mp4",
+        24,
+        0,
+        null,
+        "video"
+      ]
+    },
+    {
+      "id": 1,
+      "type": "LoadVideoAndSegment_",
+      "pos": [
+        147,
+        207
+      ],
+      "size": {
+        "0": 324.6152038574219,
+        "1": 575.59765625
+      },
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "scenes_video",
+          "type": "SCENE_VIDEO",
+          "links": [
+            59,
+            70
+          ],
+          "shape": 6,
+          "slot_index": 0
+        },
+        {
+          "name": "scenes_count",
+          "type": "INT",
+          "links": null,
+          "shape": 3
+        },
+        {
+          "name": "frame_count",
+          "type": "INT",
+          "links": null,
+          "shape": 3
+        },
+        {
+          "name": "fps",
+          "type": "INT",
+          "links": [],
+          "shape": 3,
+          "slot_index": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadVideoAndSegment_"
+      },
+      "widgets_values": [
+        "d6.mp4",
+        24,
+        0,
+        null,
+        "video"
+      ]
+    }
+  ],
+  "links": [
+    [
+      59,
+      1,
+      0,
+      39,
+      0,
+      "*"
+    ],
+    [
+      61,
+      40,
+      0,
+      41,
+      0,
+      "SCENE_VIDEO"
+    ],
+    [
+      62,
+      41,
+      0,
+      42,
+      0,
+      "IMAGE"
+    ],
+    [
+      63,
+      40,
+      3,
+      42,
+      1,
+      "INT"
+    ],
+    [
+      65,
+      43,
+      0,
+      22,
+      0,
+      "IMAGE"
+    ],
+    [
+      69,
+      47,
+      0,
+      46,
+      0,
+      "IMAGE"
+    ],
+    [
+      70,
+      1,
+      0,
+      47,
+      0,
+      "SCENE_VIDEO"
+    ],
+    [
+      80,
+      41,
+      0,
+      50,
+      0,
+      "IMAGE"
+    ],
+    [
+      81,
+      39,
+      0,
+      50,
+      1,
+      "SCENE_VIDEO"
+    ],
+    [
+      82,
+      50,
+      0,
+      43,
+      0,
+      "SCENE_VIDEO"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.7247295000000012,
+      "offset": [
+        10.69140058670257,
+        -97.28946419577976
+      ]
+    }
+  },
+  "version": 0.4
+}

@@ -236,12 +236,12 @@ class LivePortraitPipeline(object):
 
         # save drived result
         wfp = args.output_path
-        if inference_cfg.flag_pasteback:
+        if inference_cfg.flag_pasteback and args.source_video==False:
             images2video(I_p_paste_lst, wfp=wfp, fps=video_fps)
         else:
             images2video(I_p_lst, wfp=wfp, fps=video_fps)
-
-        return wfp, wfp_concat
+            
+        return (I_p_paste_lst if inference_cfg.flag_pasteback else I_p_lst, wfp, video_fps)
 
     def executeForAll(self, args):
         inference_cfg = self.live_portrait_wrapper.cfg  # for convenience
@@ -481,8 +481,8 @@ class LivePortraitPipeline(object):
 
         # save drived result
         wfp = args.output_path
-        if inference_cfg.flag_pasteback:
+        if inference_cfg.flag_pasteback and args.source_video==False:
             images2video(I_p_paste_lst, wfp=wfp, fps=video_fps)
         
-        return wfp
+        return (I_p_paste_lst, wfp, video_fps)
 

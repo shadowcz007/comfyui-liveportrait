@@ -28,7 +28,7 @@ def pil2tensor(image):
     return torch.from_numpy(np.array(image).astype(np.float32) / 255.0).unsqueeze(0)
 
 
-
+from .LivePortrait.src.utils.video import images2video
 from .LivePortrait.src.live_portrait_pipeline import LivePortraitPipeline
 
 def get_model_dir(m):
@@ -44,6 +44,7 @@ class ArgumentConfig:
                     driving_info,
                     output_path='animations/v.mp4',
                     output_path_concat="",
+                    source_video=False,
                     device_id=0, 
                     crop_info =None,
                     face_index=0,
@@ -64,6 +65,7 @@ class ArgumentConfig:
                     share=False,
                     server_name='0.0.0.0'):
         self.source_image = source_image
+        self.source_video=source_video
         self.driving_info = driving_info
         self.output_path = output_path
         self.output_path_concat=output_path_concat
@@ -403,6 +405,101 @@ class LivePortraitNode:
 
             # print('#executeForAll',len(crop_info))
             live_portrait_pipeline.executeForAll(args)
+
+        live_portrait_pipeline.live_portrait_wrapper=None
+
+        live_portrait_pipeline=None
+
+        return (v_path,output_path_concat,)
+
+
+
+
+
+class LivePortraitVideoNode:
+    
+    @classmethod
+    def INPUT_TYPES(s):
+        
+        return {"required": {
+                        "source_image_batch": ("IMAGE",),
+                        "driving_video":("SCENE_VIDEO",),  
+                        },
+                # "optional":{  
+                #             "driving_video_reverse_align":("BOOLEAN", {"default": True},),
+                #         }
+                }
+    
+    RETURN_TYPES = ("SCENE_VIDEO","SCENE_VIDEO",)
+    RETURN_NAMES = ("video","video_concat",)
+
+    FUNCTION = "run"
+
+    CATEGORY = "♾️Mixlab/Video/LivePortrait"
+
+    INPUT_IS_LIST = True
+    OUTPUT_IS_LIST = (False,False,) #list 列表 [1,2,3]
+  
+    def run(self,source_image_batch,driving_video):
+        source_video=True
+        driving_video_reverse_align=True
+        print('#source_image_batch',source_image_batch)
+        source_image_batch=source_image_batch[0]
+        
+        #获取临时目录：temp
+        output_dir = folder_paths.get_temp_directory()
+
+        def count_live_portrait_mp4_files(output_dir: str) -> int:
+            count = 0
+            for filename in os.listdir(output_dir):
+                if filename.startswith('live_portrait_') and filename.endswith('.mp4'):
+                    count += 1
+            return count
+
+        counter=count_live_portrait_mp4_files(output_dir)
+        
+        v_file = f"live_portrait_{counter:05}.mp4"
+        v_file_concat = f"live_portrait_concat_{counter:05}.mp4"
+
+        v_path=os.path.join(output_dir, v_file)
+        output_path_concat=os.path.join(output_dir, v_file_concat)
+
+        # print('##---------------------------------#landmark_runner_ckpt',landmark_runner_ckpt)
+        live_portrait_pipeline = LivePortraitPipeline(
+            inference_cfg=inference_cfg,
+            crop_cfg=crop_cfg,
+            landmark_runner_ckpt=landmark_runner_ckpt,
+            insightface_pretrained_weights=insightface_pretrained_weights
+        )
+
+        # run
+        crop_info=None
+        if crop_info==None:
+
+            frames=[]
+
+            for i in range(len(source_image_batch)):
+
+                source_image=source_image_batch[i]
+
+                pil_image=tensor2pil(source_image)
+                # Convert PIL image to NumPy array
+                opencv_image = np.array(pil_image)
+
+                args =  ArgumentConfig(
+                    source_image=opencv_image,
+                    driving_info=[driving_video[0]],
+                    output_path=v_path,
+                    output_path_concat=output_path_concat,
+                    crop_info=crop_info, 
+                    source_video=source_video
+                )
+
+                video_frames, v_path, video_fps=live_portrait_pipeline.execute(args)
+
+                frames.append(video_frames[i])
+        
+        images2video(frames, wfp=v_path, fps=video_fps)
 
         live_portrait_pipeline.live_portrait_wrapper=None
 

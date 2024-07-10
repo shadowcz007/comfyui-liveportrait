@@ -12,7 +12,7 @@ import cv2
 import numpy as np
 import pickle,os
 import os.path as osp
-from rich.progress import track
+# from rich.progress import track
 
 # from .config.argument_config import ArgumentConfig
 from .config.inference_config import InferenceConfig
@@ -138,8 +138,9 @@ class LivePortraitPipeline(object):
         R_d_0, x_d_0_info = None, None
 
         pbar = comfy.utils.ProgressBar(n_frames)
-
-        for i in track(range(n_frames), description='Animating...', total=n_frames):
+        print('Animating...',  n_frames)
+        for i in range(n_frames):
+        # track(range(n_frames), description='Animating...', total=n_frames):
     
             if is_video(args.driving_info):
                 # extract kp info by M
@@ -379,7 +380,9 @@ class LivePortraitPipeline(object):
 
             pbar = comfy.utils.ProgressBar(n_frames)
 
-            for i in track(range(n_frames), description='Animating...', total=n_frames):
+            print('Animating...',  n_frames)
+            for i in range(n_frames):
+            # track(range(n_frames), description='Animating...', total=n_frames):
 
                 if is_video(driving_info):
                     # extract kp info by M

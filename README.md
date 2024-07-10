@@ -9,7 +9,14 @@
 
 
 ### workflow
+
+
+
 > 配合 [comfyui-mixlab-nodes](https://github.com/shadowcz007/comfyui-mixlab-nodes) 使用
+
+
+> 支持视频模式 [video-to-video](example/v2v-workflow.json)
+
 
 > 全家福
 

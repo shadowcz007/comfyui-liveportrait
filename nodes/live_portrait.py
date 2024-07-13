@@ -387,7 +387,7 @@ class LivePortraitNode:
                 ds=[]
                 #todo 视频的帧要对齐
                 for i in range(len(crop_info)):
-                    if driving_video[i]:
+                    if i in driving_video:
                         ds.append(driving_video[i])
                     else:
                         ds.append(last_d)

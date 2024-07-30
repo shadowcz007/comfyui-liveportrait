@@ -1,7 +1,11 @@
 # coding: utf-8
 
 import os.path as osp
-import cv2; cv2.setNumThreads(0); cv2.ocl.setUseOpenCL(False)
+import cv2;
+
+from ... import deviceutils
+
+cv2.setNumThreads(0); cv2.ocl.setUseOpenCL(False)
 import torch
 import numpy as np
 import onnxruntime
@@ -32,7 +36,7 @@ class LandmarkRunner(object):
         self.dsize = kwargs.get('dsize', 224)
         self.timer = Timer()
         # print('---------------------------------#onnx_provider',ckpt_path)
-        if onnx_provider.lower() == 'cuda':
+        if deviceutils.device_name == 'cuda':
             self.session = onnxruntime.InferenceSession(
                 ckpt_path, providers=[
                     ('CUDAExecutionProvider', {'device_id': device_id})

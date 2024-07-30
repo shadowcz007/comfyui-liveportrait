@@ -12,19 +12,45 @@ import time
 import numpy as np
 from LivePortrait.src.utils.helper import load_model, concat_feat
 from LivePortrait.src.config.inference_config import InferenceConfig
+import deviceutils
 
 
 def initialize_inputs(batch_size=1):
     """
     Generate random input tensors and move them to GPU
     """
-    feature_3d = torch.randn(batch_size, 32, 16, 64, 64).cuda().half()
-    kp_source = torch.randn(batch_size, 21, 3).cuda().half()
-    kp_driving = torch.randn(batch_size, 21, 3).cuda().half()
-    source_image = torch.randn(batch_size, 3, 256, 256).cuda().half()
-    generator_input = torch.randn(batch_size, 256, 64, 64).cuda().half()
-    eye_close_ratio = torch.randn(batch_size, 3).cuda().half()
-    lip_close_ratio = torch.randn(batch_size, 2).cuda().half()
+
+    if deviceutils.device_name != "cuda":
+        feature_3d = torch.randn(batch_size, 32, 16, 64, 64).cuda().half()
+        kp_source = torch.randn(batch_size, 21, 3).cuda().half()
+        kp_driving = torch.randn(batch_size, 21, 3).cuda().half()
+        source_image = torch.randn(batch_size, 3, 256, 256).cuda().half()
+        generator_input = torch.randn(batch_size, 256, 64, 64).cuda().half()
+        eye_close_ratio = torch.randn(batch_size, 3).cuda().half()
+        lip_close_ratio = torch.randn(batch_size, 2).cuda().half()
+    elif deviceutils.device_name == "mps":
+        feature_3d = torch.randn(batch_size, 32, 16, 64, 64).half()
+        feature_3d = feature_3d.to(deviceutils.device_name)
+        kp_source = torch.randn(batch_size, 21, 3).half()
+        kp_source = kp_source.to(deviceutils.device_name)
+        kp_driving = torch.randn(batch_size, 21, 3).half()
+        kp_driving = kp_driving.to(deviceutils.device_name)
+        source_image = torch.randn(batch_size, 3, 256, 256).half()
+        source_image = source_image.to(deviceutils.device_name)
+        generator_input = torch.randn(batch_size, 256, 64, 64).half()
+        generator_input = generator_input.to(deviceutils.device_name)
+        eye_close_ratio = torch.randn(batch_size, 3).half()
+        eye_close_ratio = eye_close_ratio.to(deviceutils.device_name)
+        lip_close_ratio = torch.randn(batch_size, 2).half()
+        lip_close_ratio = lip_close_ratio.to(deviceutils.device_name)
+    else:
+        feature_3d = torch.randn(batch_size, 32, 16, 64, 64).half()
+        kp_source = torch.randn(batch_size, 21, 3).half()
+        kp_driving = torch.randn(batch_size, 21, 3).half()
+        source_image = torch.randn(batch_size, 3, 256, 256).half()
+        generator_input = torch.randn(batch_size, 256, 64, 64).half()
+        eye_close_ratio = torch.randn(batch_size, 3).half()
+        lip_close_ratio = torch.randn(batch_size, 2).half()
     feat_stitching = concat_feat(kp_source, kp_driving).half()
     feat_eye = concat_feat(kp_source, eye_close_ratio).half()
     feat_lip = concat_feat(kp_source, lip_close_ratio).half()
@@ -105,34 +131,65 @@ def measure_inference_times(compiled_models, stitching_retargeting_module, input
 
     with torch.no_grad():
         for _ in range(100):
-            torch.cuda.synchronize()
+            if deviceutils.device_name == "cuda":
+                torch.cuda.synchronize()
+            elif deviceutils.device_name == "mps":
+                torch.mps.synchronize()
+            else:
+                torch.cpu.synchronize()
+
             overall_start = time.time()
 
             start = time.time()
             compiled_models['Appearance Feature Extractor'](inputs['source_image'])
-            torch.cuda.synchronize()
+            if deviceutils.device_name == "cuda":
+                torch.cuda.synchronize()
+            elif deviceutils.device_name == "mps":
+                torch.mps.synchronize()
+            else:
+                torch.cpu.synchronize()
             times['Appearance Feature Extractor'].append(time.time() - start)
 
             start = time.time()
             compiled_models['Motion Extractor'](inputs['source_image'])
-            torch.cuda.synchronize()
+            if deviceutils.device_name == "cuda":
+                torch.cuda.synchronize()
+            elif deviceutils.device_name == "mps":
+                torch.mps.synchronize()
+            else:
+                torch.cpu.synchronize()
             times['Motion Extractor'].append(time.time() - start)
 
             start = time.time()
             compiled_models['Warping Network'](inputs['feature_3d'], inputs['kp_driving'], inputs['kp_source'])
-            torch.cuda.synchronize()
+            if deviceutils.device_name == "cuda":
+                torch.cuda.synchronize()
+            elif deviceutils.device_name == "mps":
+                torch.mps.synchronize()
+            else:
+                torch.cpu.synchronize()
             times['Warping Network'].append(time.time() - start)
 
             start = time.time()
             compiled_models['SPADE Decoder'](inputs['generator_input'])  # Adjust input as required
-            torch.cuda.synchronize()
+            if deviceutils.device_name == "cuda":
+                torch.cuda.synchronize()
+            elif deviceutils.device_name == "mps":
+                torch.mps.synchronize()
+            else:
+                torch.cpu.synchronize()
             times['SPADE Decoder'].append(time.time() - start)
 
             start = time.time()
             stitching_retargeting_module['stitching'](inputs['feat_stitching'])
             stitching_retargeting_module['eye'](inputs['feat_eye'])
             stitching_retargeting_module['lip'](inputs['feat_lip'])
-            torch.cuda.synchronize()
+            if deviceutils.device_name == "cuda":
+                torch.cuda.synchronize()
+            elif deviceutils.device_name == "mps":
+                torch.mps.synchronize()
+            else:
+                torch.cpu.synchronize()
             times['Retargeting Models'].append(time.time() - start)
 
             overall_times.append(time.time() - overall_start)

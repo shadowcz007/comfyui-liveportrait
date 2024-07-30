@@ -8,6 +8,7 @@ from torch import nn
 import torch.nn.functional as F
 import torch
 from .util import Hourglass, make_coordinate_grid, kp2gaussian
+from ... import deviceutils
 
 
 class DenseMotionNetwork(nn.Module):
@@ -59,7 +60,9 @@ class DenseMotionNetwork(nn.Module):
         heatmap = gaussian_driving - gaussian_source  # (bs, num_kp, d, h, w)
 
         # adding background feature
-        zeros = torch.zeros(heatmap.shape[0], 1, spatial_size[0], spatial_size[1], spatial_size[2]).type(heatmap.type()).to(heatmap.device)
+        print(f'heatmap.type():{heatmap.type()},heatmap.device:{heatmap.device}')
+        ty = heatmap.type() if deviceutils.device_name is 'cuda' else 'torch.FloatTensor'
+        zeros = torch.zeros(heatmap.shape[0], 1, spatial_size[0], spatial_size[1], spatial_size[2]).type(ty).to(heatmap.device)
         heatmap = torch.cat([zeros, heatmap], dim=1)
         heatmap = heatmap.unsqueeze(2)         # (bs, 1+num_kp, 1, d, h, w)
         return heatmap

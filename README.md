@@ -7,6 +7,17 @@
 > [推荐：mixlab-nodes](https://github.com/shadowcz007/comfyui-mixlab-nodes)
 
 
+### 更新
+
+expression_editor：
+
+表情代码：修改自[ComfyUI-AdvancedLivePortrait](https://github.com/PowerHouseMan/ComfyUI-AdvancedLivePortrait)
+
+face crop 模型参考[comfyui-ultralytics-yolo](https://github.com/shadowcz007/comfyui-ultralytics-yolo)
+
+下载  [face_yolov8m.pt 或者 face_yolov8n.pt](https://github.com/ultralytics/assets/releases/) 到 ```models/ultralytics/bbox/```
+
+
 ### 教程
 [![image](https://github.com/user-attachments/assets/ab5d45c3-aeae-458f-bc8b-b017e7d1138c)](https://www.bilibili.com/video/BV1JW421R7sP/?buvid=ZE4865E83C2A9F8547C08310ED8406E72D1B&is_story_h5=false&mid=hSf%2B8X%2BJL2Hq%2F3zyc4No3A%3D%3D&p=1&plat_id=116&share_from=ugc&share_medium=iphone&share_plat=ios&share_session_id=B4772702-1A00-4E2D-8993-4725A2F52BB1&share_source=WEIXIN&share_tag=s_i&spmid=united.player-video-detail.0.0&timestamp=1720927658&unique_k=LAUWKu1&up_id=43149384&vd_source=6b8c7c3af882b1b8460fa6fa0ce1c69d)
 

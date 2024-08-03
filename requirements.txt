@@ -6,3 +6,4 @@ timm>=1.0.7
 rich>=13.7.1
 albumentations>=1.4.10
 insightface
+ultralytics

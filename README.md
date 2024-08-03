@@ -11,6 +11,10 @@
 
 expression_editor：
 
+![alt text](./example/1722665711975.png)
+
+[示例工作流](./example/expression_workflow.json)
+
 表情代码：修改自[ComfyUI-AdvancedLivePortrait](https://github.com/PowerHouseMan/ComfyUI-AdvancedLivePortrait)
 
 face crop 模型参考[comfyui-ultralytics-yolo](https://github.com/shadowcz007/comfyui-ultralytics-yolo)

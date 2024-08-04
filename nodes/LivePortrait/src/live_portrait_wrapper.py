@@ -111,7 +111,7 @@ class LivePortraitWrapper(object):
         x: Bx3xHxW, normalized to 0~1
         """
         with torch.no_grad():
-            with torch.autocast(device_type="cuda" if deviceutils.device_name is "cuda" else "cpu", dtype=torch.float16, enabled=self.cfg.flag_use_half_precision):
+            with torch.autocast(device_type="cuda" if deviceutils.device_name == "cuda" else "cpu", dtype=torch.float16, enabled=self.cfg.flag_use_half_precision):
                 feature_3d = self.appearance_feature_extractor(x)
 
         return feature_3d.float()
@@ -123,7 +123,7 @@ class LivePortraitWrapper(object):
         return: A dict contains keys: 'pitch', 'yaw', 'roll', 't', 'exp', 'scale', 'kp'
         """
         with torch.no_grad():#mps不支持autocast
-            with torch.autocast(device_type="cuda" if deviceutils.device_name is "cuda" else "cpu", dtype=torch.float16, enabled=self.cfg.flag_use_half_precision):
+            with torch.autocast(device_type="cuda" if deviceutils.device_name == "cuda" else "cpu", dtype=torch.float16, enabled=self.cfg.flag_use_half_precision):
                 kp_info = self.motion_extractor(x)
 
             if self.cfg.flag_use_half_precision:
@@ -296,7 +296,7 @@ class LivePortraitWrapper(object):
         """
         # The line 18 in Algorithm 1: D(W(f_s; x_s, x′_d,i)）
         with torch.no_grad():
-            with torch.autocast(device_type="cuda" if deviceutils.device_name is "cuda" else "cpu", dtype=torch.float16, enabled=self.cfg.flag_use_half_precision):
+            with torch.autocast(device_type="cuda" if deviceutils.device_name == "cuda" else "cpu", dtype=torch.float16, enabled=self.cfg.flag_use_half_precision):
                 # get decoder input
                 ret_dct = self.warping_module(feature_3d, kp_source=kp_source, kp_driving=kp_driving)
                 # decode

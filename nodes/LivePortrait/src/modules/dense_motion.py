@@ -61,7 +61,7 @@ class DenseMotionNetwork(nn.Module):
 
         # adding background feature
         print(f'heatmap.type():{heatmap.type()},heatmap.device:{heatmap.device}')
-        ty = heatmap.type() if deviceutils.device_name is 'cuda' else 'torch.FloatTensor'
+        ty = heatmap.type() if deviceutils.device_name == 'cuda' else 'torch.FloatTensor'
         zeros = torch.zeros(heatmap.shape[0], 1, spatial_size[0], spatial_size[1], spatial_size[2]).type(ty).to(heatmap.device)
         heatmap = torch.cat([zeros, heatmap], dim=1)
         heatmap = heatmap.unsqueeze(2)         # (bs, 1+num_kp, 1, d, h, w)

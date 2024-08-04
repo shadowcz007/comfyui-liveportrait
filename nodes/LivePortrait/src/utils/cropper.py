@@ -5,7 +5,11 @@ from PIL import Image
 import os.path as osp
 from typing import List, Union, Tuple
 from dataclasses import dataclass, field
-import cv2; cv2.setNumThreads(0); cv2.ocl.setUseOpenCL(False)
+import cv2;
+
+from ... import deviceutils
+
+cv2.setNumThreads(0); cv2.ocl.setUseOpenCL(False)
 
 from .landmark_runner import LandmarkRunner
 from .face_analysis_diy import FaceAnalysisDIY
@@ -30,7 +34,6 @@ class Trajectory:
     frame_rgb_lst: Union[Tuple, List, np.ndarray] = field(default_factory=list)  # frame list
     frame_rgb_crop_lst: Union[Tuple, List, np.ndarray] = field(default_factory=list)  # frame crop list
 
-
 class Cropper(object):
     def __init__(self, **kwargs) -> None:
         device_id = kwargs.get('device_id', 0)
@@ -41,7 +44,7 @@ class Cropper(object):
         self.landmark_runner = LandmarkRunner(
             # ckpt_path=make_abs_path('../../pretrained_weights/liveportrait/landmark.onnx'),
             ckpt_path=landmark_runner_ckpt,
-            onnx_provider='cuda',
+            onnx_provider=deviceutils.device_name,
             device_id=device_id
         )
         self.landmark_runner.warmup()
@@ -50,7 +53,7 @@ class Cropper(object):
             name='buffalo_l',
             # root=make_abs_path('../../pretrained_weights/insightface'),
             root=insightface_pretrained_weights,
-            providers=["CUDAExecutionProvider"]
+            providers=deviceutils.device_providers
         )
         self.face_analysis_wrapper.prepare(ctx_id=device_id, det_size=(512, 512))
         self.face_analysis_wrapper.warmup()

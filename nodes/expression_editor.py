@@ -7,6 +7,8 @@ from PIL import Image
 import folder_paths
 import copy,json
 from ultralytics import YOLO
+from scipy.interpolate import CubicSpline
+
 
 current_file_path = os.path.abspath(__file__)
 current_directory = os.path.dirname(current_file_path)
@@ -48,6 +50,61 @@ def calc_crop_limit(center, img_size, crop_size):
     return pos, pos2, crop_size
 
  
+# 2个字典之间的插值
+def interpolate_dicts(from_dict, to_dict, interpolations_num, interpolation_type='linear'):
+    def linear_interpolate(val1, val2, alpha):
+        return val1 + (val2 - val1) * alpha
+    
+    def nearest_neighbor_interpolate(val1, val2, alpha):
+        return val1 if alpha < 0.5 else val2
+    
+    keys = from_dict.keys()
+    from_values = np.array([from_dict[key] for key in keys])
+    to_values = np.array([to_dict[key] for key in keys])
+    interpolated_dicts = []
+    
+    if interpolation_type == 'cubic':
+        cs = CubicSpline([0, 1], np.vstack([from_values, to_values]), axis=0)
+    
+    for i in range(interpolations_num):
+        alpha = i / (interpolations_num - 1)
+        interpolated_dict = {}
+        
+        for key in keys:
+            if interpolation_type == 'linear':
+                interpolated_dict[key] = linear_interpolate(from_dict[key], to_dict[key], alpha)
+            elif interpolation_type == 'nearest':
+                interpolated_dict[key] = nearest_neighbor_interpolate(from_dict[key], to_dict[key], alpha)
+            elif interpolation_type == 'cubic':
+                interpolated_dict[key] = cs(alpha)[keys.index(key)]
+            # 添加更多插值方法的条件
+        
+        interpolated_dicts.append(interpolated_dict)
+    
+    return interpolated_dicts
+
+def update_expression_json(new_dict):
+    default_keys = {
+        "rotate_pitch": 0,
+        "rotate_yaw": 0,
+        "rotate_roll": 0,
+        "blink": 0,
+        "eyebrow": 0,
+        "wink": 0,
+        "pupil_x": 0,
+        "pupil_y": 0,
+        "aaa": 0,
+        "eee": 0,
+        "woo": 0,
+        "smile": 0,
+        "src_weight": 0
+    }
+
+    for key in new_dict:
+        if key in default_keys:
+            default_keys[key] = new_dict[key]
+
+    return default_keys
 
 
 # 修改模型路径 ， 沿用 comfyui-liveportrait
@@ -368,7 +425,121 @@ class ExpressionSet:
 
     #def apply_ratio(self, ratio):        self.exp *= ratio
 
- 
+def expression_run(psi,expression_json):
+    rotate_yaw = -expression_json["rotate_yaw"]
+
+    pipeline = g_engine.get_pipeline()
+
+    s_info = psi.x_s_info
+    #delta_new = copy.deepcopy()
+    s_exp = s_info['exp'] * expression_json["src_weight"]
+    s_exp[0, 5] = s_info['exp'][0, 5]
+    s_exp += s_info['kp']
+
+    es = ExpressionSet()
+
+    # if sample_image != None:
+    #     if id(self.sample_image) != id(sample_image):
+    #         self.sample_image = sample_image
+    #         d_image_np = (sample_image * 255).byte().numpy()
+    #         d_face, _ = g_engine.crop_face(d_image_np[0])
+    #         i_d = pipeline.prepare_source(d_face)
+    #         self.d_info = pipeline.get_kp_info(i_d)
+    #         self.d_info['exp'][0, 5, 0] = 0
+    #         self.d_info['exp'][0, 5, 1] = 0
+
+    #     # delta_new += s_exp * (1 - sample_ratio) + self.d_info['exp'] * sample_ratio
+    #     es.e += self.d_info['exp'] * sample_ratio
+
+    es.r = g_engine.calc_fe(es.e, 
+                            expression_json["blink"], 
+                            expression_json["eyebrow"], 
+                            expression_json["wink"],
+                            expression_json["pupil_x"], 
+                            expression_json["pupil_y"], 
+                            expression_json["aaa"], 
+                            expression_json["eee"], 
+                            expression_json["woo"], 
+                            expression_json['smile'],
+                            expression_json['rotate_pitch'], 
+                            rotate_yaw, 
+                            expression_json['rotate_roll']
+                            )
+
+    new_rotate = get_rotation_matrix(s_info['pitch'] + es.r[0], s_info['yaw'] + es.r[1],
+                                         s_info['roll'] + es.r[2])
+    x_d_new = (s_info['scale'] * (1 + es.s)) * ((s_exp + es.e) @ new_rotate) + s_info['t']
+
+    x_d_new = pipeline.stitching(psi.x_s_user, x_d_new)
+
+    crop_out = pipeline.warp_decode(psi.f_s_user, psi.x_s_user, x_d_new)
+    crop_out = pipeline.parse_output(crop_out['out'])[0]
+
+    crop_with_fullsize = cv2.warpAffine(crop_out, psi.crop_trans_m, get_rgb_size(psi.src_rgb), cv2.INTER_LINEAR)
+    out = np.clip(psi.mask_ori * crop_with_fullsize + (1 - psi.mask_ori) * psi.src_rgb, 0, 255).astype(np.uint8)
+
+    return pil2tensor(out)
+
+
+#  
+class ExpressionVideoNode:
+    def __init__(self):
+        self.src_image = None
+    @classmethod
+    def INPUT_TYPES(s):
+        
+        return {"required": {
+                        "src_image": ("IMAGE",), 
+                        "from_expression":("STRING", {"forceInput": True,"dynamicPrompts": False}),
+                        "to_expression":("STRING", {"forceInput": True,"dynamicPrompts": False}),
+                        "interpolation_type":( ['linear', 'nearest', 'cubic'], 
+                                    {"default": "cubic"}),
+                        "interpolations_num":("INT", {
+                                "default": 1, 
+                                "min": 1, #Minimum value
+                                "max": 204800000000, #Maximum value
+                                "step": 1, #Slider's step
+                                "display": "number" # Cosmetic only: display as "number" or "slider"
+                            })
+                        },
+                }
+    
+    RETURN_TYPES = ("IMAGE",)
+    RETURN_NAMES = ("frames",)
+
+    FUNCTION = "run"
+
+    # OUTPUT_NODE = True
+
+    CATEGORY = "♾️Mixlab/Video/LivePortrait"
+
+    INPUT_IS_LIST = False
+    OUTPUT_IS_LIST = (False,) #x list
+  
+    def run(self,src_image,from_expression, to_expression,interpolation_type,interpolations_num ):
+        
+        if id(src_image) != id(self.src_image):
+            self.psi = g_engine.prepare_source(src_image)
+            self.src_image = src_image
+
+        from_expression = json.loads(from_expression)
+        to_expression = json.loads(to_expression)
+
+        from_expression=update_expression_json(from_expression)
+        to_expression=update_expression_json(to_expression)
+
+        exps=interpolate_dicts(from_expression,to_expression,interpolations_num,interpolation_type)
+        
+        result=[]
+
+        for exp in exps:
+            out_img = expression_run(self.psi,exp)
+            result.append(out_img)
+
+        result=torch.cat(result, dim=0)
+
+        return (result,)
+    
 
 class ExpressionEditor:
     def __init__(self):
@@ -416,7 +587,7 @@ class ExpressionEditor:
 
     FUNCTION = "run"
 
-    OUTPUT_NODE = True
+    # OUTPUT_NODE = True
 
     CATEGORY = "♾️Mixlab/Face"
 
@@ -426,6 +597,7 @@ class ExpressionEditor:
     def run(self,src_image, rotate_pitch, rotate_yaw, rotate_roll, blink, eyebrow, wink, pupil_x, pupil_y, aaa,
              eee, woo, smile,
             src_weight, expression_json=None):
+        
         
         if expression_json!=None:
             try:
@@ -459,7 +631,7 @@ class ExpressionEditor:
             except:
                 print("#expression_json",expression_json)
 
-        print('#expression_json',expression_json)
+        # print('#expression_json',expression_json)
 
         expression_json={
             "rotate_pitch":rotate_pitch,
@@ -479,55 +651,11 @@ class ExpressionEditor:
 
         rotate_yaw = -rotate_yaw
 
-        new_editor_link = None
-       
         if id(src_image) != id(self.src_image):
             self.psi = g_engine.prepare_source(src_image)
             self.src_image = src_image
-        new_editor_link = []
-        new_editor_link.append(self.psi)
-        
-
-        pipeline = g_engine.get_pipeline()
-
-        psi = self.psi
-        s_info = psi.x_s_info
-        #delta_new = copy.deepcopy()
-        s_exp = s_info['exp'] * src_weight
-        s_exp[0, 5] = s_info['exp'][0, 5]
-        s_exp += s_info['kp']
-
-        es = ExpressionSet()
-
-        # if sample_image != None:
-        #     if id(self.sample_image) != id(sample_image):
-        #         self.sample_image = sample_image
-        #         d_image_np = (sample_image * 255).byte().numpy()
-        #         d_face, _ = g_engine.crop_face(d_image_np[0])
-        #         i_d = pipeline.prepare_source(d_face)
-        #         self.d_info = pipeline.get_kp_info(i_d)
-        #         self.d_info['exp'][0, 5, 0] = 0
-        #         self.d_info['exp'][0, 5, 1] = 0
-
-        #     # delta_new += s_exp * (1 - sample_ratio) + self.d_info['exp'] * sample_ratio
-        #     es.e += self.d_info['exp'] * sample_ratio
-
-        es.r = g_engine.calc_fe(es.e, blink, eyebrow, wink, pupil_x, pupil_y, aaa, eee, woo, smile,
-                                  rotate_pitch, rotate_yaw, rotate_roll)
-
-        new_rotate = get_rotation_matrix(s_info['pitch'] + es.r[0], s_info['yaw'] + es.r[1],
-                                         s_info['roll'] + es.r[2])
-        x_d_new = (s_info['scale'] * (1 + es.s)) * ((s_exp + es.e) @ new_rotate) + s_info['t']
-
-        x_d_new = pipeline.stitching(psi.x_s_user, x_d_new)
-
-        crop_out = pipeline.warp_decode(psi.f_s_user, psi.x_s_user, x_d_new)
-        crop_out = pipeline.parse_output(crop_out['out'])[0]
-
-        crop_with_fullsize = cv2.warpAffine(crop_out, psi.crop_trans_m, get_rgb_size(psi.src_rgb), cv2.INTER_LINEAR)
-        out = np.clip(psi.mask_ori * crop_with_fullsize + (1 - psi.mask_ori) * psi.src_rgb, 0, 255).astype(np.uint8)
-
-        out_img = pil2tensor(out)
+       
+        out_img = expression_run(self.psi,expression_json)
 
         return (out_img,json.dumps(expression_json) ,)
 

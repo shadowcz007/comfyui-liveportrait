@@ -58,7 +58,7 @@ def interpolate_dicts(from_dict, to_dict, interpolations_num, interpolation_type
     def nearest_neighbor_interpolate(val1, val2, alpha):
         return val1 if alpha < 0.5 else val2
     
-    keys = from_dict.keys()
+    keys = list(from_dict.keys())  # Convert dict_keys to a list
     from_values = np.array([from_dict[key] for key in keys])
     to_values = np.array([to_dict[key] for key in keys])
     interpolated_dicts = []
@@ -527,7 +527,8 @@ class ExpressionVideoNode:
 
         from_expression=update_expression_json(from_expression)
         to_expression=update_expression_json(to_expression)
-
+        print('from_expression',from_expression)
+        print('to_expression',to_expression)
         exps=interpolate_dicts(from_expression,to_expression,interpolations_num,interpolation_type)
         
         result=[]

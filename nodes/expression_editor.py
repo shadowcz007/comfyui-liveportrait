@@ -527,8 +527,8 @@ class ExpressionVideoNode:
 
         from_expression=update_expression_json(from_expression)
         to_expression=update_expression_json(to_expression)
-        print('from_expression',from_expression)
-        print('to_expression',to_expression)
+        # print('from_expression',from_expression)
+        # print('to_expression',to_expression)
         exps=interpolate_dicts(from_expression,to_expression,interpolations_num,interpolation_type)
         
         result=[]

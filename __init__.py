@@ -1,5 +1,5 @@
 from .nodes.live_portrait import LivePortraitNode,FaceCropInfo,Retargeting,LivePortraitVideoNode
-from .nodes.expression_editor import ExpressionEditor,ExpressionVideoNode
+from .nodes.expression_editor import ExpressionEditor,ExpressionVideoNode,ExpressionVideo2VideoNode
 
 NODE_CLASS_MAPPINGS = {
     "LivePortraitNode": LivePortraitNode, 
@@ -7,7 +7,8 @@ NODE_CLASS_MAPPINGS = {
     "FaceCropInfo":FaceCropInfo,
     "Retargeting":Retargeting,
     "ExpressionEditor_":ExpressionEditor,
-    "ExpressionVideoNode":ExpressionVideoNode
+    "ExpressionVideoNode":ExpressionVideoNode,
+    "ExpressionVideo2VideoNode":ExpressionVideo2VideoNode
 }
 
 # dict = { "key":value }
@@ -18,7 +19,8 @@ NODE_DISPLAY_NAME_MAPPINGS = {
    "FaceCropInfo":"Face Crop Info",
    "Retargeting":"Retargeting",
    "ExpressionEditor_":"Expression Editor",
-   "ExpressionVideoNode":"Expression Video"
+   "ExpressionVideoNode":"Expression Video",
+   "ExpressionVideo2VideoNode":"Expression Video 2 Video"
 }
 
 # web ui的节点功能

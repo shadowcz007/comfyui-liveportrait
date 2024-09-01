@@ -67,7 +67,7 @@ def interpolate_dicts(from_dict, to_dict, interpolations_num, interpolation_type
         cs = CubicSpline([0, 1], np.vstack([from_values, to_values]), axis=0)
     
     for i in range(interpolations_num):
-        alpha = i / 1 if (interpolations_num - 1)==0 else (interpolations_num - 1)
+        alpha = i / interpolations_num - 1
         interpolated_dict = {}
         
         for key in keys:
@@ -574,7 +574,6 @@ class ExpressionVideo2VideoNode:
         
         images = [src_frames[i:i + 1, ...] for i in range(src_frames.shape[0])]
         interpolations_num=len(images)
- 
         from_expression = json.loads(from_expression)
         to_expression = json.loads(to_expression)
 
